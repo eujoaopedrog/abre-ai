@@ -105,7 +105,7 @@ html, body {
 .scroll-container {
     position: relative; z-index: 1;
     height: 100vh; overflow-y: scroll;
-    scroll-snap-type: y mandatory;
+    scroll-snap-type: none;
     scroll-behavior: smooth;
     scrollbar-width: none;
 }
@@ -1935,9 +1935,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         const container = document.getElementById('scroll-container');
         const timelinePanel = document.getElementById('timeline-panel');
-        
-        // Disable scroll-snap to allow smooth scrolling through timeline
-        container.style.scrollSnapType = 'none';
         
         container.scrollTo({
             top: timelinePanel.offsetTop,
