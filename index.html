@@ -258,13 +258,16 @@ p {
     background: linear-gradient(90deg, var(--blue-400), var(--blue-300));
     border-radius: 4px; transition: width 0.05s linear;
 }
-.story-img { width: 100%; height: 100%; object-fit: cover; }
+.story-media {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; display: block; background: #000;
+}
+.story-img { display: block; }
+.story-video {
+    display: none; background: #000;
+}
 .story-text-overlay {
-    position: absolute; bottom: 40px; left: 20px; right: 20px;
-    text-align: center; background: rgba(0,0,0,0.5);
-    backdrop-filter: blur(8px); padding: 12px 18px;
-    border-radius: 16px; font-size: 0.9rem; color: #fff;
-    border: 1px solid rgba(255,255,255,0.08); z-index: 5;
+    display: none !important;
 }
 .tap-area {
     position: absolute; top: 0; height: 100%; width: 50%;
@@ -1119,15 +1122,15 @@ p {
 <div id="preloader">
     <div class="preloader-ring"></div>
     <div class="preloader-heart">❤</div>
-    <div class="preloader-text">CARREGANDO NOSSA HISTÓRIA...</div>
+    <div class="preloader-text">CARREGANDO A SURPRESA...</div>
 </div>
 
 <!-- AURORA CANVAS -->
 <canvas id="aurora-canvas"></canvas>
 
 <!-- MÚSICA -->
-<audio id="bg-music" loop preload="none">
-    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" type="audio/mpeg">
+<audio id="bg-music" loop preload="auto">
+    <source src="./musica/sotam.mp3" type="audio/mpeg">
 </audio>
 
 <!-- MUTE BUTTON -->
@@ -1145,10 +1148,10 @@ p {
     <section class="panel" id="panel-hero">
         <div class="glass-card fade-reveal">
             <div style="font-size: 3rem; margin-bottom: 0.5rem; animation: pulse-heart 1.4s infinite;">❤</div>
-            <h1>Meu Amor,</h1>
+            <h1>MInha Princesa,</h1>
             <p style="margin: 1rem 0;">
                 Preparei algo único para você.
-                <br>Deslize para cima e vamos reviver
+                <br>Deslize para cima e aproveite
                 <span style="color:var(--heart-red); display:inline-block; animation: pulse-heart 1.4s infinite;">❤</span> nossa história.
             </p>
             <button class="btn-start" id="start-btn">
@@ -1169,44 +1172,44 @@ p {
             </div>
             
             <div class="timeline-slides" id="timeline-slides">
-                <article class="timeline-slide active" data-index="0" style="--slide-bg: url('https://images.unsplash.com/photo-1511895426328-dc8714191300?w=1200&q=80');">
+                <article class="timeline-slide active" data-index="0" style="--slide-bg: url('./img/primeiroencontro.jpeg');">
                     <div class="slide-content">
                         <div class="slide-number">01</div>
-                        <div class="slide-date">12 de Março, 2023</div>
-                        <h3 class="slide-title">O Primeiro Olhar</h3>
-                        <p class="slide-desc">O dia em que nossos olhares se cruzaram e eu soube que nada mais seria igual.</p>
+                        <div class="slide-date">13 de Fevereiro, 2026</div>
+                        <h3 class="slide-title">O Nosso Primeiro Encontro</h3>
+                        <p class="slide-desc">O dia em que eu te vi e soube que meu mundo mudaria para sempre.</p>
                         <div class="slide-quote">"Foi como se o tempo parasse..."</div>
                     </div>
                     <div class="slide-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1511895426328-dc8714191300?w=1200&q=80" alt="Primeiro Olhar" class="slide-img">
+                        <img src="./img/primeiroencontro.jpeg" alt="Primeiro Olhar" class="slide-img">
                         <div class="slide-overlay"></div>
                     </div>
                 </article>
 
-                <article class="timeline-slide" data-index="1" style="--slide-bg: url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200&q=80');">
+                <article class="timeline-slide" data-index="1" style="--slide-bg: url('/img/segundoencontro.jpeg');">
                     <div class="slide-content">
                         <div class="slide-number">02</div>
-                        <div class="slide-date">28 de Abril, 2023</div>
-                        <h3 class="slide-title">O Primeiro Encontro</h3>
-                        <p class="slide-desc">O frio na barriga, as risadas nervosas e as horas que passaram voando. Foi o melhor café da minha vida.</p>
-                        <div class="slide-quote">"Horas que pareceram segundos..."</div>
+                        <div class="slide-date">25 de Abril, 2026</div>
+                        <h3 class="slide-title">O Segundo Encontro</h3>
+                        <p class="slide-desc">O frio na barriga, as risadas nervosas e as horas que passaram voando. Foi os melhores momentos da minha vida.</p>
+                        <div class="slide-quote">"Horas que parecem segundos..."</div>
                     </div>
                     <div class="slide-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200&q=80" alt="Primeiro Encontro" class="slide-img">
+                        <img src="./img/segundoencontro.jpeg" alt="Segundo Encontro" class="slide-img">
                         <div class="slide-overlay"></div>
                     </div>
                 </article>
 
-                <article class="timeline-slide" data-index="2" style="--slide-bg: url('https://images.unsplash.com/photo-1473496169904-658ba37448eb?w=1200&q=80');">
+                <article class="timeline-slide" data-index="2" style="--slide-bg: url('/img/terceiroencontro.jpeg');">
                     <div class="slide-content">
                         <div class="slide-number">03</div>
-                        <div class="slide-date">15 de Junho, 2023</div>
-                        <h3 class="slide-title">A Certeza</h3>
-                        <p class="slide-desc">Foi naquele abraço demorado que eu entendi: eu não queria mais nenhum outro lugar do mundo, a não ser do seu lado.</p>
-                        <div class="slide-quote">"Meu lugar é ao seu lado."</div>
+                        <div class="slide-date">07 de Maio, 2026</div>
+                        <h3 class="slide-title">O Terceiro Encontro, dai foi tantos que não consigo contar</h3>
+                        <p class="slide-desc">Foi nesse dia que te provei que conseguia pegar os ursinhos na maquina</p>
+                        <div class="slide-quote">"Minha cara de alivio."</div>
                     </div>
                     <div class="slide-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1473496169904-658ba37448eb?w=1200&q=80" alt="A Certeza" class="slide-img">
+                        <img src="./img/terceiroencontro.jpeg" alt="A Certeza" class="slide-img">
                         <div class="slide-overlay"></div>
                     </div>
                 </article>
@@ -1264,7 +1267,7 @@ p {
         <div class="glass-card fade-reveal" style="max-width: 500px;">
             <span class="section-label">Razões Pra Te Amar</span>
             <h2>Por Que Você?</h2>
-            <p style="margin-bottom: 0.5rem; font-size: 0.9rem; opacity: 0.7;">Among infinite reasons, here are a few...</p>
+            <p style="margin-bottom: 0.5rem; font-size: 0.9rem; opacity: 0.7;">São infinitas mas vou citar algumas...</p>
 
             <div class="reasons-grid">
                 <div class="reason-card">
@@ -1273,7 +1276,7 @@ p {
                 </div>
                 <div class="reason-card">
                     <div class="reason-icon"><i class="fas fa-heart"></i></div>
-                    <div class="reason-text">Pelo <strong>coração gigante</strong> que acolhe todo mundo</div>
+                    <div class="reason-text">Pelo <strong>olhar apaixonante</strong> que me faz sentir unico</div>
                 </div>
                 <div class="reason-card">
                     <div class="reason-icon"><i class="fas fa-mug-hot"></i></div>
@@ -1295,8 +1298,8 @@ p {
         </p>
         <div class="stories-wrapper" id="stories-ui">
             <div class="story-progress" id="progress-container"></div>
-            <img src="" class="story-img" id="story-img" alt="Story" loading="lazy">
-            <div class="story-text-overlay" id="story-text"></div>
+            <img src="" class="story-media story-img" id="story-img" alt="Story" loading="lazy">
+            <video class="story-media story-video" id="story-video" muted playsinline preload="auto"></video>
             <div class="tap-area tap-left" id="tap-left"></div>
             <div class="tap-area tap-right" id="tap-right"></div>
         </div>
@@ -1306,13 +1309,13 @@ p {
     <section class="panel">
         <div class="spotify-card fade-reveal">
             <div class="now-playing-label">
-                <span><i class="fas fa-circle" style="color: var(--spotify-green); font-size: 0.5rem; margin-right: 6px;"></i> PLAYING FROM PLAYLIST</span>
-                <span style="color: #b3b3b3;">Nossa Playlist</span>
+                <span><i class="fas fa-circle" style="color: var(--spotify-green); font-size: 0.5rem; margin-right: 6px;"></i>Nossa Musica </span>
+                <span style="color: #b3b3b3;"></span>
             </div>
 
             <div class="album-art-wrapper">
                 <div class="vinyl-disc" id="vinyl-disc">
-                    <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400&q=80" alt="Capa" id="album-cover">
+                    <img src="./musica/logomusica.jpg" alt="Capa" id="album-cover">
                 </div>
                 <button class="play-overlay-btn" id="play-overlay-btn">
                     <i class="fas fa-play" id="play-icon-overlay"></i>
@@ -1326,15 +1329,15 @@ p {
                 <div class="viz-bar"></div><div class="viz-bar"></div><div class="viz-bar"></div>
             </div>
 
-            <div class="song-title">Emergency Blimp</div>
-            <div class="song-artist">King Krue</div>
+            <div class="song-title">Foi assim</div>
+            <div class="song-artist">Sotam, Rob, Pulim</div>
 
             <div class="progress-area">
                 <span class="time" id="current-time">0:00</span>
                 <div class="progress-track" id="progress-track">
                     <div class="progress-fill-spotify" id="progress-fill-spotify"></div>
                 </div>
-                <span class="time" id="total-time">2:54</span>
+                <span class="time" id="total-time">2:27</span>
             </div>
 
             <div class="controls-row">
@@ -1353,11 +1356,11 @@ p {
 
             <div class="lyrics-overlay" id="lyrics-overlay">
                 <div class="lyrics-content">
-                    <div class="letter-title">🎵 Para você, meu amor 🎵</div>
+                    <div class="letter-title">🎵 E foi assim, meu amor 🎵</div>
                     <div class="letter-line">Desde que você entrou na minha vida,</div>
                     <div class="letter-line">tudo ganhou uma nova melodia.</div>
-                    <div class="letter-line">Cada sorriso seu é como o refrão</div>
-                    <div class="letter-line">da minha música favorita.</div>
+                    <div class="letter-line">Cada sorriso seu é como as 7 maravilhas do mundo</div>
+                    <div class="letter-line">da .</div>
                     <div class="letter-line">Quero que você saiba que,</div>
                     <div class="letter-line">assim como essa canção toca sem parar no meu coração,</div>
                     <div class="letter-line">o meu amor por você só cresce a cada segundo.</div>
@@ -1420,10 +1423,36 @@ p {
 <script>
 document.addEventListener('DOMContentLoaded', function() {
 
+    const preloader = document.getElementById('preloader');
+    const bgMusic = document.getElementById('bg-music');
+    const startBtn = document.getElementById('start-btn');
+    let musicUnlocked = false;
+
+    function unlockMusic() {
+        if (musicUnlocked || !bgMusic) return;
+        musicUnlocked = true;
+        bgMusic.volume = 0.3;
+        bgMusic.muted = false;
+        bgMusic.play().then(() => {
+            const muteBtn = document.getElementById('mute-btn');
+            const muteIcon = document.getElementById('mute-icon');
+            if (muteBtn) muteBtn.classList.add('visible');
+            if (muteIcon) muteIcon.className = 'fas fa-volume-up';
+        }).catch(() => {
+            const muteBtn = document.getElementById('mute-btn');
+            const muteIcon = document.getElementById('mute-icon');
+            if (muteBtn) muteBtn.classList.add('visible');
+            if (muteIcon) muteIcon.className = 'fas fa-volume-mute';
+        });
+    }
+
     // ===== 1. PRELOADER =====
-    setTimeout(() => {
-        document.getElementById('preloader').classList.add('hidden');
-    }, 1500);
+    function hidePreloader() {
+        if (preloader) preloader.classList.add('hidden');
+    }
+
+    setTimeout(hidePreloader, 800);
+    window.addEventListener('load', hidePreloader, { once: true });
 
     // ===== 2. AURORA BACKGROUND (canvas) =====
     (function initAurora() {
@@ -1624,12 +1653,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // ===== 4. STORIES =====
     const storiesData = [
-        { img: 'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=600&q=80',
-          text: 'Aquele dia de chuva em que ficamos rindo de tudo.' },
-        { img: 'https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600&q=80',
-          text: 'Os pequenos detalhes que são o meu mundo inteiro.' },
-        { img: 'https://images.unsplash.com/photo-1490578474895-699bc4e3f44f?w=600&q=80',
-          text: 'Prontos para criar memórias incríveis juntos?' }
+        { type: 'image', src: './momentos storys/WhatsApp Image 2026-08-26 at 19.42.29.jpeg' },
+        { type: 'image', src: './momentos storys/WhatsApp Image 2026-08-26 at 19.42.46.jpeg' },
+        { type: 'image', src: './momentos storys/WhatsApp Image 2026-08-26 at 19.43.23 (1).jpeg' },
+        { type: 'image', src: './momentos storys/WhatsApp Image 2026-08-26 at 19.43.23.jpeg' },
+        { type: 'image', src: './momentos storys/WhatsApp Image 2026-08-26 at 19.43.25.jpeg' },
+        { type: 'image', src: './momentos storys/WhatsApp Image 2026-08-26 at 19.43.26.jpeg' },
+        { type: 'image', src: './momentos storys/WhatsApp Image 2026-08-26 at 19.43.27 (1).jpeg' },
+        { type: 'image', src: './momentos storys/WhatsApp Image 2026-08-26 at 19.43.27 (2).jpeg' },
+        { type: 'image', src: './momentos storys/WhatsApp Image 2026-08-26 at 19.43.27.jpeg' },
+        { type: 'video', src: './momentos storys/WhatsApp Video 2026-08-26 at 19.38.56.mp4' },
+        { type: 'video', src: './momentos storys/WhatsApp Video 2026-08-26 at 19.43.23.mp4' },
+        { type: 'video', src: './momentos storys/WhatsApp Video 2026-08-26 at 19.43.24.mp4' },
+        { type: 'video', src: './momentos storys/WhatsApp Video 2026-08-26 at 19.43.28.mp4' },
+        { type: 'video', src: './momentos storys/WhatsApp Video 2026-08-26 at 19.43.45.mp4' }
     ];
 
     let currentStory = 0;
@@ -1638,7 +1675,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const progressContainer = document.getElementById('progress-container');
     const storyImg = document.getElementById('story-img');
-    const storyText = document.getElementById('story-text');
+    const storyVideo = document.getElementById('story-video');
 
     storiesData.forEach((_, idx) => {
         const seg = document.createElement('div');
@@ -1647,25 +1684,49 @@ document.addEventListener('DOMContentLoaded', function() {
         progressContainer.appendChild(seg);
     });
 
+    function showStoryMedia(item) {
+        if (item.type === 'video') {
+            storyImg.style.display = 'none';
+            storyImg.removeAttribute('src');
+            storyVideo.style.display = 'block';
+            storyVideo.src = item.src;
+            storyVideo.muted = true;
+            storyVideo.playsInline = true;
+            storyVideo.currentTime = 0;
+            storyVideo.play().catch(() => {});
+            return;
+        }
+
+        storyVideo.pause();
+        storyVideo.removeAttribute('src');
+        storyVideo.style.display = 'none';
+        storyImg.style.display = 'block';
+        storyImg.src = item.src;
+    }
+
     function updateStoryView() {
-        storyImg.src = storiesData[currentStory].img;
-        storyText.innerText = storiesData[currentStory].text;
+        const item = storiesData[currentStory];
+        showStoryMedia(item);
+
         for (let i = 0; i < storiesData.length; i++) {
             const fill = document.getElementById(`fill-${i}`);
             if (i < currentStory) fill.style.width = '100%';
             else fill.style.width = '0%';
         }
-        startProgressBar(currentStory);
+        startProgressBar(currentStory, item);
     }
 
-    function startProgressBar(index) {
+    function startProgressBar(index, item) {
         clearInterval(progressInterval);
         const fill = document.getElementById(`fill-${index}`);
         fill.style.width = '0%';
+
+        const duration = item.type === 'video' ? Math.max(STORY_DURATION, (storyVideo.duration || 0) * 1000 || STORY_DURATION) : STORY_DURATION;
         const startTime = Date.now();
+
         progressInterval = setInterval(() => {
             const elapsed = Date.now() - startTime;
-            const pct = Math.min((elapsed / STORY_DURATION) * 100, 100);
+            const pct = Math.min((elapsed / duration) * 100, 100);
             fill.style.width = pct + '%';
             if (pct >= 100) {
                 clearInterval(progressInterval);
@@ -1684,21 +1745,28 @@ document.addEventListener('DOMContentLoaded', function() {
         updateStoryView();
     }
 
+    storyVideo.addEventListener('ended', () => {
+        nextStory();
+    });
+
     document.getElementById('tap-right').addEventListener('click', nextStory);
     document.getElementById('tap-left').addEventListener('click', prevStory);
 
     const storiesObserver = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting) updateStoryView();
-        else clearInterval(progressInterval);
+        else {
+            clearInterval(progressInterval);
+            storyVideo.pause();
+        }
     }, { threshold: 0.4 });
     storiesObserver.observe(document.getElementById('stories-ui'));
 
     // ===== 5. COUNTER (tempo juntos) =====
-    const startDate = new Date('2023-03-12T00:00:00');
+    const startDate = new Date('2026-02-13T00:00:00');
 
     function updateCounter() {
         const now = new Date();
-        const diff = now - startDate;
+        const diff = now - startDate;0
         const days = Math.floor(diff / 86400000);
         const hours = Math.floor((diff % 86400000) / 3600000);
         const minutes = Math.floor((diff % 3600000) / 60000);
@@ -1720,6 +1788,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const progressFill = document.getElementById('progress-fill-spotify');
     const currentTimeEl = document.getElementById('current-time');
+    const totalTimeEl = document.getElementById('total-time');
     const playIconBig = document.getElementById('play-icon-big');
     const playIconOverlay = document.getElementById('play-icon-overlay');
     const playBtnBig = document.getElementById('play-btn-big');
@@ -1731,20 +1800,22 @@ document.addEventListener('DOMContentLoaded', function() {
     const vizBars = document.querySelectorAll('.viz-bar');
 
     function formatTime(sec) {
-        const m = Math.floor(sec / 60);
-        const s = Math.floor(sec % 60);
+        const safe = Number.isFinite(sec) ? sec : 0;
+        const m = Math.floor(safe / 60);
+        const s = Math.floor(safe % 60);
         return `${m}:${s.toString().padStart(2, '0')}`;
     }
 
     function updateProgress() {
-        const pct = (currentSeconds / TOTAL_TIME) * 100;
+        const duration = Number.isFinite(bgMusic.duration) && bgMusic.duration > 0 ? bgMusic.duration : TOTAL_TIME;
+        const pct = (bgMusic.currentTime / duration) * 100;
         progressFill.style.width = Math.min(pct, 100) + '%';
-        currentTimeEl.textContent = formatTime(currentSeconds);
-        if (currentSeconds >= TOTAL_TIME) {
+        currentSeconds = bgMusic.currentTime;
+        currentTimeEl.textContent = formatTime(bgMusic.currentTime);
+        totalTimeEl.textContent = formatTime(duration);
+        if (bgMusic.currentTime >= duration) {
+            bgMusic.currentTime = 0;
             pauseMusic();
-            currentSeconds = 0;
-            progressFill.style.width = '0%';
-            currentTimeEl.textContent = '0:00';
         }
     }
 
@@ -1764,28 +1835,28 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function playMusic() {
-        if (currentSeconds >= TOTAL_TIME) currentSeconds = 0;
-        isPlaying = true;
-        playIconBig.className = 'fas fa-pause';
-        playIconOverlay.className = 'fas fa-pause';
-        playOverlayBtn.classList.add('hidden');
-        vinylDisc.classList.add('spinning');
-        startVisualizer();
-        if (playInterval) clearInterval(playInterval);
-        playInterval = setInterval(() => {
-            currentSeconds += 1;
-            updateProgress();
-        }, 1000);
+        bgMusic.volume = 0.3;
+        bgMusic.play().then(() => {
+            isPlaying = true;
+            playIconBig.className = 'fas fa-pause';
+            playIconOverlay.className = 'fas fa-pause';
+            playOverlayBtn.classList.add('hidden');
+            vinylDisc.classList.add('spinning');
+            startVisualizer();
+        }).catch(() => {
+            isPlaying = false;
+            pauseMusic();
+        });
     }
 
     function pauseMusic() {
+        bgMusic.pause();
         isPlaying = false;
         playIconBig.className = 'fas fa-play';
         playIconOverlay.className = 'fas fa-play';
         playOverlayBtn.classList.remove('hidden');
         vinylDisc.classList.remove('spinning');
         stopVisualizer();
-        if (playInterval) { clearInterval(playInterval); playInterval = null; }
     }
 
     function togglePlay() { isPlaying ? pauseMusic() : playMusic(); }
@@ -1793,20 +1864,48 @@ document.addEventListener('DOMContentLoaded', function() {
     playBtnBig.addEventListener('click', togglePlay);
     playOverlayBtn.addEventListener('click', togglePlay);
 
+    bgMusic.addEventListener('timeupdate', updateProgress);
+    bgMusic.addEventListener('loadedmetadata', () => {
+        totalTimeEl.textContent = formatTime(bgMusic.duration || TOTAL_TIME);
+        updateProgress();
+    });
+    bgMusic.addEventListener('play', () => {
+        isPlaying = true;
+        playIconBig.className = 'fas fa-pause';
+        playIconOverlay.className = 'fas fa-pause';
+        playOverlayBtn.classList.add('hidden');
+        vinylDisc.classList.add('spinning');
+        startVisualizer();
+    });
+    bgMusic.addEventListener('pause', () => {
+        isPlaying = false;
+        playIconBig.className = 'fas fa-play';
+        playIconOverlay.className = 'fas fa-play';
+        playOverlayBtn.classList.remove('hidden');
+        vinylDisc.classList.remove('spinning');
+        stopVisualizer();
+    });
+    bgMusic.addEventListener('ended', () => {
+        bgMusic.currentTime = 0;
+        pauseMusic();
+    });
+
     document.getElementById('prev-btn').addEventListener('click', () => {
-        currentSeconds = Math.max(0, currentSeconds - 5);
+        bgMusic.currentTime = Math.max(0, bgMusic.currentTime - 5);
         updateProgress();
     });
 
     document.getElementById('next-btn').addEventListener('click', () => {
-        currentSeconds = Math.min(currentSeconds + 15, TOTAL_TIME);
+        const duration = bgMusic.duration || TOTAL_TIME;
+        bgMusic.currentTime = Math.min(bgMusic.currentTime + 15, duration);
         updateProgress();
     });
 
     document.getElementById('progress-track').addEventListener('click', (e) => {
         const rect = e.currentTarget.getBoundingClientRect();
         const x = e.clientX - rect.left;
-        currentSeconds = (x / rect.width) * TOTAL_TIME;
+        const duration = bgMusic.duration || TOTAL_TIME;
+        bgMusic.currentTime = (x / rect.width) * duration;
         updateProgress();
     });
 
@@ -1913,7 +2012,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // ===== 10. START BUTTON + MUSIC =====
     const muteBtn = document.getElementById('mute-btn');
     const muteIcon = document.getElementById('mute-icon');
-    const bgMusic = document.getElementById('bg-music');
     let musicStarted = false;
 
     function tryPlayMusic() {
@@ -1921,15 +2019,17 @@ document.addEventListener('DOMContentLoaded', function() {
         bgMusic.play().then(() => {
             muteBtn.classList.add('visible');
             muteIcon.className = 'fas fa-volume-up';
+            playMusic();
         }).catch(() => {
             muteBtn.classList.add('visible');
             muteIcon.className = 'fas fa-volume-mute';
         });
     }
 
-    document.getElementById('start-btn').addEventListener('click', function() {
+    startBtn.addEventListener('click', function() {
         if (!musicStarted) {
             musicStarted = true;
+            unlockMusic();
             tryPlayMusic();
             setInterval(createFloatingHeart, 2000);
         }
@@ -1942,14 +2042,29 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    window.addEventListener('pointerdown', unlockMusic, { once: true });
+    window.addEventListener('touchstart', unlockMusic, { once: true });
+
     muteBtn.addEventListener('click', function() {
         if (bgMusic.paused) {
             bgMusic.play().then(() => {
                 muteIcon.className = 'fas fa-volume-up';
+                isPlaying = true;
+                playIconBig.className = 'fas fa-pause';
+                playIconOverlay.className = 'fas fa-pause';
+                playOverlayBtn.classList.add('hidden');
+                vinylDisc.classList.add('spinning');
+                startVisualizer();
             }).catch(() => {});
         } else {
             bgMusic.pause();
             muteIcon.className = 'fas fa-volume-mute';
+            isPlaying = false;
+            playIconBig.className = 'fas fa-play';
+            playIconOverlay.className = 'fas fa-play';
+            playOverlayBtn.classList.remove('hidden');
+            vinylDisc.classList.remove('spinning');
+            stopVisualizer();
         }
     });
 
