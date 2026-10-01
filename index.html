@@ -88,7 +88,7 @@ body::after{
 @keyframes vignettePulse{from{opacity:.5}to{opacity:1}}
 
 /* =========================================
-   ACCESS GATE (tela inicial de autorização)
+   ACCESS GATE
 ========================================= */
 #access-gate{
     position:fixed;inset:0;z-index:180;
@@ -247,20 +247,6 @@ body::after{
     gap:14px;
 }
 .gate-meta .accent{color:rgba(var(--accent-rgb),.6)}
-
-/* AUDIO TOGGLE */
-#audio-toggle{
-    position:fixed;top:14px;right:14px;z-index:150;
-    background:rgba(0,0,0,.6);border:1px solid #222;color:#777;
-    font-family:inherit;font-size:10px;letter-spacing:2px;
-    padding:7px 11px;cursor:none;
-    transition:all .25s ease,opacity .5s,visibility .5s;
-    backdrop-filter:blur(4px);
-    opacity:0;visibility:hidden;
-}
-#audio-toggle.show{opacity:1;visibility:visible}
-#audio-toggle:hover{border-color:var(--accent);color:#fff}
-#audio-toggle.on{color:var(--accent);border-color:rgba(var(--accent-rgb),.5)}
 
 /* TIMESTAMPS */
 #timestamps{
@@ -624,8 +610,6 @@ body::after{
 <div class="red-vignette"></div>
 <div class="glitch-flash" id="glitchFlash"></div>
 
-<button id="audio-toggle">🔇 ÁUDIO OFF</button>
-
 <div id="timestamps"></div>
 <div id="signal-bar">
     <div class="bar" style="height:4px"></div>
@@ -871,7 +855,6 @@ const accessText = $("accessText");
 const glitchFlash = $("glitchFlash");
 const reconnecting = $("reconnecting");
 const zeroScreen = $("zero-screen");
-const audioToggle = $("audio-toggle");
 const cursor = $("cursor");
 const konamiToast = $("konami-toast");
 const accessGate = $("access-gate");
@@ -879,10 +862,10 @@ const accessBtn = $("access-btn");
 const gateIcon = $("gate-icon");
 
 /* =========================================
-   AUDIO
+   AUDIO (silencioso — sem UI)
 ========================================= */
 let audioCtx = null;
-let muted = true;   // começa OFF — o gate ativa
+let muted = true;   // OFF até o gate; depois ativa invisivelmente
 let droneNodes = null;
 let audioReady = false;
 let droneStarted = false;
@@ -952,28 +935,6 @@ function stopDrone(){
     droneStarted = false;
 }
 
-function toggleAudio(){
-    initAudio();
-    muted = !muted;
-    if(muted){
-        audioToggle.textContent = "🔇 ÁUDIO OFF";
-        audioToggle.classList.remove("on");
-        stopDrone();
-    }else{
-        audioToggle.textContent = "🔊 ÁUDIO ON";
-        audioToggle.classList.add("on");
-        if(audioCtx && audioCtx.state === "suspended"){
-            audioCtx.resume().then(()=>startDrone()).catch(()=>{});
-        }else if(audioCtx){
-            startDrone();
-        }
-    }
-}
-audioToggle.addEventListener("click", e => {
-    e.stopPropagation();
-    toggleAudio();
-});
-
 /* =========================================
    CUSTOM CURSOR
 ========================================= */
@@ -990,8 +951,6 @@ if(window.matchMedia("(hover:hover)").matches){
         requestAnimationFrame(animCursor);
     }
     animCursor();
-    const hoverTargets = () =>
-        document.querySelectorAll("button, input, a, .time-box, .dossier, #access-btn");
     document.addEventListener("mouseover", e => {
         if(e.target.closest("button, input, a, .time-box, .dossier")){
             cursor.classList.add("hover");
@@ -1002,7 +961,7 @@ if(window.matchMedia("(hover:hover)").matches){
 }
 
 /* =========================================
-   ACCESS GATE — PRIMEIRA INTERAÇÃO (ativa áudio)
+   ACCESS GATE — ativa áudio silenciosamente
 ========================================= */
 let gateOpened = false;
 
@@ -1013,8 +972,6 @@ function openGate(){
     // 1) Ativa o AudioContext dentro do gesto do usuário
     initAudio();
     muted = false;
-    audioToggle.textContent = "🔊 ÁUDIO ON";
-    audioToggle.classList.add("on");
 
     // 2) Aplica animação visual do cadeado
     gateIcon.classList.add("unlocked");
@@ -1037,7 +994,6 @@ function openGate(){
     // 4) Some o gate e dá start na sequência de loading
     setTimeout(()=>{
         accessGate.classList.add("hide");
-        audioToggle.classList.add("show");
         setTimeout(()=>{
             startLoadingSequence();
         }, 900);
@@ -1052,7 +1008,7 @@ document.addEventListener("keydown", e=>{
         e.preventDefault();
         openGate();
     }
-}, {once:false});
+});
 
 /* =========================================
    GLITCH
@@ -1116,7 +1072,7 @@ function triggerIntrusion(){
 }
 
 /* =========================================
-   LOADING SEQUENCE (iniciada após o gate)
+   LOADING SEQUENCE
 ========================================= */
 let loading = 0;
 let loadingInterval = null;
