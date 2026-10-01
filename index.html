@@ -5,18 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>10.10 — Classified Operation</title>
 
+<meta property="og:title" content="10.10 — Classified Operation">
+<meta property="og:description" content="A NOITE QUE NÃO DEVERIA EXISTIR. 10.10.2026.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#000000">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='black'/%3E%3Ctext y='75' x='50' text-anchor='middle' font-size='58' fill='%23ff1111' font-family='monospace' font-weight='bold'%3E10%3C/text%3E%3C/svg%3E">
+
 <style>
+:root{--accent:#ff1111;--accent-rgb:255,17,17}
 *{margin:0;padding:0;box-sizing:border-box}
 
 html,body{
-    width:100%;
-    height:100%;
-    overflow:hidden;
-    background:#000;
-    color:#fff;
+    width:100%;height:100%;overflow:hidden;
+    background:#000;color:#fff;
     font-family:"Courier New",Courier,monospace;
+    cursor:none;
 }
-
 body{
     position:relative;
     background:
@@ -26,509 +31,437 @@ body{
 
 /* GRID */
 body::before{
-    content:"";
-    position:fixed;
-    inset:0;
+    content:"";position:fixed;inset:0;
     background:
         linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),
         linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);
     background-size:42px 42px;
-    pointer-events:none;
-    z-index:80;
+    pointer-events:none;z-index:80;
 }
-
 /* SCANLINES */
 body::after{
-    content:"";
-    position:fixed;
-    inset:0;
+    content:"";position:fixed;inset:0;
     background:repeating-linear-gradient(
         to bottom,
         rgba(255,255,255,.035) 0px,
         rgba(255,255,255,.035) 1px,
-        transparent 1px,
-        transparent 4px
-    );
-    pointer-events:none;
-    z-index:90;
-    opacity:.3;
+        transparent 1px,transparent 4px);
+    pointer-events:none;z-index:90;opacity:.3;
 }
+
+/* CUSTOM CURSOR */
+#cursor{
+    position:fixed;width:26px;height:26px;
+    border:1px solid rgba(var(--accent-rgb),.6);
+    border-radius:50%;
+    pointer-events:none;z-index:200;
+    transform:translate(-50%,-50%);
+    transition:width .2s,height .2s,background .2s;
+    mix-blend-mode:difference;
+}
+#cursor::before,#cursor::after{
+    content:"";position:absolute;background:var(--accent);
+}
+#cursor::before{left:50%;top:-4px;width:1px;height:6px;transform:translateX(-50%)}
+#cursor::after{top:50%;left:-4px;height:1px;width:6px;transform:translateY(-50%)}
+#cursor.hover{width:40px;height:40px;background:rgba(var(--accent-rgb),.1)}
+@media(hover:none){#cursor{display:none}html,body{cursor:auto}}
+
+/* MATRIX BG */
+#matrix-canvas{
+    position:fixed;inset:0;z-index:1;
+    opacity:0;transition:opacity 2s ease;
+    pointer-events:none;
+}
+#matrix-canvas.active{opacity:.18}
 
 /* RED VIGNETTE */
 .red-vignette{
-    position:fixed;
-    inset:-20%;
-    z-index:4;
-    pointer-events:none;
-    background:radial-gradient(
-        ellipse at center,
+    position:fixed;inset:-20%;z-index:4;pointer-events:none;
+    background:radial-gradient(ellipse at center,
         transparent 45%,
         rgba(120,0,0,.08) 70%,
-        rgba(255,0,0,.13) 100%
-    );
+        rgba(var(--accent-rgb),.13) 100%);
     animation:vignettePulse 4s infinite alternate;
 }
+@keyframes vignettePulse{from{opacity:.5}to{opacity:1}}
 
-@keyframes vignettePulse{
-    from{opacity:.5}
-    to{opacity:1}
+/* AUDIO TOGGLE */
+#audio-toggle{
+    position:fixed;top:14px;right:14px;z-index:150;
+    background:rgba(0,0,0,.6);border:1px solid #222;color:#777;
+    font-family:inherit;font-size:10px;letter-spacing:2px;
+    padding:7px 11px;cursor:none;
+    transition:all .25s ease;backdrop-filter:blur(4px);
+}
+#audio-toggle:hover{border-color:var(--accent);color:#fff}
+#audio-toggle.on{color:var(--accent);border-color:rgba(var(--accent-rgb),.5)}
+#audio-toggle.pulse{animation:audioPulse 2s infinite}
+@keyframes audioPulse{
+    0%,100%{box-shadow:0 0 0 0 rgba(var(--accent-rgb),0)}
+    50%{box-shadow:0 0 0 6px rgba(var(--accent-rgb),0)}
 }
 
-/* =========================
-   LOADING
-========================= */
+/* TIMESTAMPS */
+#timestamps{
+    position:fixed;top:14px;left:14px;z-index:70;
+    font-size:9px;letter-spacing:2px;color:#3a3a3a;
+    line-height:1.7;pointer-events:none;
+    opacity:0;transition:opacity 1s ease;
+}
+#timestamps.active{opacity:1}
+#timestamps .log-red{color:rgba(var(--accent-rgb),.6)}
 
+/* SIGNAL BAR */
+#signal-bar{
+    position:fixed;top:14px;left:50%;transform:translateX(-50%);
+    z-index:70;display:flex;align-items:flex-end;gap:3px;
+    height:16px;opacity:0;transition:opacity 1s ease;
+}
+#signal-bar.active{opacity:1}
+#signal-bar .bar{
+    width:3px;background:#333;transition:height .3s,background .3s;
+}
+#signal-bar .bar.on{background:var(--accent);box-shadow:0 0 6px rgba(var(--accent-rgb),.7)}
+#signal-bar .label{
+    margin-left:8px;font-size:8px;letter-spacing:2px;color:#444;
+    align-self:center;
+}
+
+/* LOADING */
 #loading-screen{
-    position:fixed;
-    inset:0;
-    z-index:100;
-    background:#000;
-    display:flex;
-    justify-content:center;
-    align-items:center;
+    position:fixed;inset:0;z-index:100;background:#000;
+    display:flex;justify-content:center;align-items:center;
     transition:opacity 1.2s ease,visibility 1.2s ease;
 }
+#loading-screen.hide{opacity:0;visibility:hidden}
 
-#loading-screen.hide{
-    opacity:0;
-    visibility:hidden;
-}
-
-.loading-wrapper{
-    width:min(900px,88%);
-    position:relative;
-}
-
-/* TOP BAR */
+.loading-wrapper{width:min(900px,88%);position:relative}
 
 .top-bar{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    border-bottom:1px solid #1d1d1d;
-    padding-bottom:10px;
-    margin-bottom:25px;
-    font-size:9px;
-    letter-spacing:3px;
-    color:#444;
+    display:flex;justify-content:space-between;align-items:center;
+    border-bottom:1px solid #1d1d1d;padding-bottom:10px;margin-bottom:25px;
+    font-size:9px;letter-spacing:3px;color:#444;
 }
-
-.top-bar .online{
-    color:#777;
-}
-
+.top-bar .online{color:#777}
 .online::before{
-    content:"";
-    display:inline-block;
-    width:5px;
-    height:5px;
-    border-radius:50%;
-    background:#ff1717;
-    margin-right:7px;
-    box-shadow:0 0 10px red;
-    animation:blink .8s infinite;
+    content:"";display:inline-block;width:5px;height:5px;border-radius:50%;
+    background:var(--accent);margin-right:7px;
+    box-shadow:0 0 10px var(--accent);animation:blink .8s infinite;
 }
-
-@keyframes blink{
-    50%{opacity:.2}
-}
-
-/* TERMINAL */
+@keyframes blink{50%{opacity:.2}}
 
 .terminal{
-    min-height:300px;
-    border:1px solid #171717;
+    min-height:300px;border:1px solid #171717;
     background:
         linear-gradient(rgba(255,255,255,.012) 1px,transparent 1px),
         rgba(0,0,0,.8);
-    background-size:100% 24px;
-    padding:25px;
-    position:relative;
-    overflow:hidden;
-    box-shadow:
-        inset 0 0 70px rgba(255,0,0,.025),
-        0 0 60px rgba(0,0,0,.8);
+    background-size:100% 24px;padding:25px;
+    position:relative;overflow:hidden;
+    box-shadow:inset 0 0 70px rgba(var(--accent-rgb),.025),0 0 60px rgba(0,0,0,.8);
 }
-
 .terminal::before{
-    content:"";
-    position:absolute;
-    top:0;
-    left:0;
-    width:100%;
-    height:1px;
-    background:linear-gradient(90deg,transparent,#ff1111,transparent);
+    content:"";position:absolute;top:0;left:0;width:100%;height:1px;
+    background:linear-gradient(90deg,transparent,var(--accent),transparent);
     animation:scan 2.5s linear infinite;
 }
-
 @keyframes scan{
     0%{transform:translateY(0);opacity:0}
-    10%{opacity:1}
-    90%{opacity:1}
+    10%{opacity:1}90%{opacity:1}
     100%{transform:translateY(300px);opacity:0}
 }
 
 .terminal-line{
-    font-size:11px;
-    line-height:2;
-    color:#4e4e4e;
-    letter-spacing:1px;
-    opacity:0;
+    font-size:11px;line-height:2;color:#4e4e4e;
+    letter-spacing:1px;opacity:0;
 }
-
-.terminal-line.show{
-    opacity:1;
+.terminal-line.show{opacity:1}
+.terminal-line .prompt{color:#666}
+.terminal-line .white{color:#aaa}
+.terminal-line .red{color:var(--accent)}
+.terminal-line .redacted{
+    background:#111;color:transparent;padding:0 3px;
+    border-radius:1px;user-select:none;
+    animation:redactFlicker 4s infinite;
 }
-
-.terminal-line .prompt{
-    color:#666;
+@keyframes redactFlicker{
+    0%,95%,100%{background:#111}
+    96%{background:#2a0000}
 }
-
-.terminal-line .white{
-    color:#aaa;
-}
-
-.terminal-line .red{
-    color:#ff1616;
-}
+.terminal-line.error{color:var(--accent)}
+.terminal-line.error .prompt{color:var(--accent)}
 
 .cursor{
-    display:inline-block;
-    width:7px;
-    height:12px;
-    background:#aaa;
-    margin-left:4px;
-    vertical-align:-2px;
-    animation:cursorBlink .7s infinite;
+    display:inline-block;width:7px;height:12px;background:#aaa;
+    margin-left:4px;vertical-align:-2px;animation:cursorBlink .7s infinite;
 }
+@keyframes cursorBlink{50%{opacity:0}}
 
-@keyframes cursorBlink{
-    50%{opacity:0}
-}
+.classified{margin-top:32px;padding:25px 0 5px;border-top:1px solid #181818}
+.classified-title{font-size:10px;color:#777;letter-spacing:5px;margin-bottom:25px}
+.data-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:25px}
+.data-item label{display:block;font-size:8px;color:#444;letter-spacing:3px;margin-bottom:8px}
+.data-item strong{font-size:12px;color:#999;letter-spacing:2px;font-weight:400}
+.data-item .red{color:var(--accent)}
 
-/* MAIN CLASSIFIED */
-
-.classified{
-    margin-top:32px;
-    padding:25px 0 5px;
-    border-top:1px solid #181818;
-}
-
-.classified-title{
-    font-size:10px;
-    color:#777;
-    letter-spacing:5px;
-    margin-bottom:25px;
-}
-
-.data-grid{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:25px;
-}
-
-.data-item label{
-    display:block;
-    font-size:8px;
-    color:#444;
-    letter-spacing:3px;
-    margin-bottom:8px;
-}
-
-.data-item strong{
-    font-size:12px;
-    color:#999;
-    letter-spacing:2px;
-    font-weight:400;
-}
-
-.data-item .red{
-    color:#ff1717;
-}
-
-/* PROGRESS */
-
-.progress-section{
-    margin-top:30px;
-}
-
-.progress-meta{
-    display:flex;
-    justify-content:space-between;
-    color:#555;
-    font-size:9px;
-    letter-spacing:2px;
-    margin-bottom:9px;
-}
-
-#percent{
-    color:#aaa;
-}
-
-.progress-track{
-    width:100%;
-    height:2px;
-    background:#151515;
-    overflow:hidden;
-}
-
+.progress-section{margin-top:30px}
+.progress-meta{display:flex;justify-content:space-between;color:#555;font-size:9px;letter-spacing:2px;margin-bottom:9px}
+#percent{color:#aaa}
+.progress-track{width:100%;height:2px;background:#151515;overflow:hidden}
 .progress-fill{
-    width:0;
-    height:100%;
-    background:#fff;
-    box-shadow:0 0 12px #fff,0 0 25px rgba(255,0,0,.7);
+    width:0;height:100%;background:#fff;
+    box-shadow:0 0 12px #fff,0 0 25px rgba(var(--accent-rgb),.7);
     transition:width .1s linear;
 }
+.access{margin-top:17px;display:flex;justify-content:space-between;align-items:center;font-size:8px;letter-spacing:3px;color:#333}
+.access .right{color:#555}
 
-/* ACCESS */
+/* GLITCH FLASH */
+.glitch-flash{position:fixed;inset:0;z-index:120;background:#fff;opacity:0;pointer-events:none}
+.glitch-flash.active{animation:flash .08s linear}
+@keyframes flash{0%{opacity:0}40%{opacity:.08}100%{opacity:0}}
+.glitch-flash.red{background:var(--accent)}
 
-.access{
-    margin-top:17px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    font-size:8px;
-    letter-spacing:3px;
-    color:#333;
+/* RECONNECTING OVERLAY */
+#reconnecting{
+    position:fixed;inset:0;z-index:110;background:#000;
+    display:flex;justify-content:center;align-items:center;
+    opacity:0;visibility:hidden;transition:opacity .4s,visibility .4s;
+}
+#reconnecting.active{opacity:1;visibility:visible}
+.reconnect-text{
+    font-size:13px;letter-spacing:8px;color:#777;
+    animation:reconnectPulse 1.2s infinite;
+}
+.reconnect-text .accent{color:var(--accent)}
+@keyframes reconnectPulse{
+    0%,100%{opacity:.4}50%{opacity:1}
 }
 
-.access .right{
-    color:#555;
-}
-
-/* =========================
-   GLITCH INTERRUPTION
-========================= */
-
-.glitch-flash{
-    position:fixed;
-    inset:0;
-    z-index:120;
-    background:#fff;
-    opacity:0;
-    pointer-events:none;
-}
-
-.glitch-flash.active{
-    animation:flash .08s linear;
-}
-
-@keyframes flash{
-    0%{opacity:0}
-    40%{opacity:.08}
-    100%{opacity:0}
-}
-
-/* =========================
-   INTRO
-========================= */
-
+/* INTRO */
 #intro{
-    position:fixed;
-    inset:0;
-    z-index:20;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    text-align:center;
-    opacity:0;
-    visibility:hidden;
+    position:fixed;inset:0;z-index:20;
+    display:flex;justify-content:center;align-items:center;text-align:center;
+    opacity:0;visibility:hidden;
     transition:opacity 1s ease,visibility 1s ease;
 }
-
-#intro.active{
-    opacity:1;
-    visibility:visible;
-}
-
-.intro-content{
-    width:100%;
-    padding:30px;
-}
-
+#intro.active{opacity:1;visibility:visible}
+.intro-content{width:100%;padding:30px;transform-style:preserve-3d}
 .small-label{
-    font-size:10px;
-    letter-spacing:7px;
-    color:#666;
-    margin-bottom:35px;
-    opacity:0;
-    animation:fadeUp 1s .3s forwards;
+    font-size:10px;letter-spacing:7px;color:#666;margin-bottom:35px;
+    opacity:0;animation:fadeUp 1s .3s forwards;
 }
-
 .main-title{
     font-family:Arial,Helvetica,sans-serif;
-    font-size:clamp(50px,11vw,150px);
-    line-height:.82;
-    font-weight:1000;
-    letter-spacing:-8px;
-    text-transform:uppercase;
-    opacity:0;
-    animation:titleEnter 1.3s .5s forwards;
+    font-size:clamp(50px,11vw,150px);line-height:.82;font-weight:1000;
+    letter-spacing:-8px;text-transform:uppercase;
+    opacity:0;animation:titleEnter 1.3s .5s forwards;
+    will-change:transform;
 }
+.main-title .red{color:var(--accent);text-shadow:0 0 15px rgba(var(--accent-rgb),.45),0 0 50px rgba(var(--accent-rgb),.15)}
+.date{margin-top:35px;font-size:clamp(18px,3vw,30px);letter-spacing:12px;color:#aaa;opacity:0;animation:fadeUp 1s 1.1s forwards}
+.warning{margin-top:45px;font-size:10px;letter-spacing:5px;color:var(--accent);opacity:0;animation:fadeUp 1s 1.5s forwards}
 
-.main-title .red{
-    color:#ff1111;
-    text-shadow:0 0 15px rgba(255,0,0,.45),0 0 50px rgba(255,0,0,.15);
+/* DOSSIERS */
+#dossiers{
+    position:fixed;inset:0;z-index:18;
+    display:flex;justify-content:center;align-items:center;
+    opacity:0;visibility:hidden;
+    transition:opacity .8s ease,visibility .8s ease;
 }
-
-.date{
-    margin-top:35px;
-    font-size:clamp(18px,3vw,30px);
-    letter-spacing:12px;
-    color:#aaa;
-    opacity:0;
-    animation:fadeUp 1s 1.1s forwards;
+#dossiers.active{opacity:1;visibility:visible}
+.dossier-wrap{width:min(720px,88%);position:relative}
+.dossier-header{
+    font-size:9px;letter-spacing:6px;color:var(--accent);
+    margin-bottom:22px;display:flex;justify-content:space-between;
+    border-bottom:1px solid #181818;padding-bottom:12px;
 }
-
-.warning{
-    margin-top:45px;
-    font-size:10px;
-    letter-spacing:5px;
-    color:#ff1616;
-    opacity:0;
-    animation:fadeUp 1s 1.5s forwards;
-}
-
-/* =========================
-   COUNTDOWN
-========================= */
-
-#countdown-screen{
-    position:fixed;
-    inset:0;
-    z-index:15;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    opacity:0;
-    visibility:hidden;
-    transition:opacity 1s ease,visibility 1s ease;
-}
-
-#countdown-screen.active{
-    opacity:1;
-    visibility:visible;
-}
-
-.countdown-container{
-    width:min(1100px,90%);
-    text-align:center;
-}
-
-.countdown-label{
-    font-size:11px;
-    letter-spacing:8px;
-    color:#777;
-    margin-bottom:50px;
-}
-
-.countdown{
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:15px;
-}
-
-.time-box{
-    position:relative;
-    padding:25px 10px;
-    border-left:1px solid #222;
-}
-
-.time-box:last-child{
-    border-right:1px solid #222;
-}
-
-.time-number{
-    display:block;
-    font-size:clamp(45px,8vw,100px);
-    font-weight:900;
-    letter-spacing:-5px;
-    line-height:.9;
-    font-family:Arial,Helvetica,sans-serif;
-    font-variant-numeric:tabular-nums;
-}
-
-.time-label{
-    display:block;
-    margin-top:15px;
-    font-size:9px;
-    letter-spacing:5px;
-    color:#555;
-}
-
-.final-message{
-    margin-top:70px;
-    font-size:clamp(13px,2vw,20px);
-    letter-spacing:6px;
-    font-weight:700;
-}
-
-.final-date{
-    margin-top:18px;
-    font-size:11px;
-    letter-spacing:6px;
-    color:#ff1515;
-}
-
-.names{
-    margin-top:50px;
-    font-size:10px;
-    letter-spacing:7px;
-    color:#555;
-}
-
-/* GLITCH */
-
-.glitch{
-    position:relative;
-}
-
-.glitch::before,
-.glitch::after{
-    content:attr(data-text);
-    position:absolute;
-    inset:0;
+.dossier-header .blink{animation:blink 1s infinite}
+.dossier{
+    position:absolute;inset:0;top:60px;
+    opacity:0;transform:translateY(20px);
+    transition:opacity .5s ease,transform .5s ease;
     pointer-events:none;
 }
+.dossier.active{opacity:1;transform:translateY(0);pointer-events:auto;position:relative;top:0}
+.dossier-number{font-size:10px;letter-spacing:5px;color:#555;margin-bottom:10px}
+.dossier-name{
+    font-family:Arial,Helvetica,sans-serif;font-weight:1000;
+    font-size:clamp(42px,9vw,90px);letter-spacing:-4px;line-height:.9;
+    text-transform:uppercase;margin-bottom:35px;
+}
+.dossier-name.red{color:var(--accent);text-shadow:0 0 20px rgba(var(--accent-rgb),.4)}
+.dossier-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px 40px;margin-bottom:30px}
+.dossier-field label{display:block;font-size:8px;color:#444;letter-spacing:3px;margin-bottom:6px}
+.dossier-field span{font-size:12px;color:#aaa;letter-spacing:2px}
+.dossier-field span.accent{color:var(--accent)}
+.redacted{
+    display:inline-block;background:#111;color:transparent;padding:0 4px;
+    border-radius:1px;user-select:none;position:relative;
+    animation:redactFlicker 3.5s infinite;
+}
+.dossier-bio{
+    font-size:10px;letter-spacing:2px;color:#555;line-height:1.9;
+    border-left:1px solid #1d1d1d;padding-left:14px;
+}
+.dossier-bio .warn{color:var(--accent)}
+.dossier-progress{
+    margin-top:38px;display:flex;gap:8px;
+}
+.dossier-progress .dot{
+    width:20px;height:2px;background:#1d1d1d;transition:background .3s;
+}
+.dossier-progress .dot.active{background:var(--accent);box-shadow:0 0 8px rgba(var(--accent-rgb),.6)}
+#dossier-skip{
+    position:fixed;bottom:22px;right:22px;z-index:70;
+    font-size:9px;letter-spacing:4px;color:#444;
+    border:1px solid #1d1d1d;padding:6px 10px;background:rgba(0,0,0,.5);
+    cursor:none;opacity:0;transition:opacity .3s,color .3s,border-color .3s;
+    font-family:inherit;
+}
+#dossier-skip.show{opacity:1}
+#dossier-skip:hover{color:var(--accent);border-color:var(--accent)}
 
-.glitch::before{
-    color:#ff0000;
-    transform:translate(-2px,0);
-    clip-path:inset(20% 0 65% 0);
-    animation:glitch1 4s infinite linear alternate-reverse;
+/* COUNTDOWN */
+#countdown-screen{
+    position:fixed;inset:0;z-index:15;
+    display:flex;justify-content:center;align-items:center;
+    opacity:0;visibility:hidden;
+    transition:opacity 1s ease,visibility 1s ease;
+}
+#countdown-screen.active{opacity:1;visibility:visible}
+.countdown-container{width:min(1100px,90%);text-align:center;position:relative;z-index:2}
+.countdown-label{font-size:11px;letter-spacing:8px;color:#777;margin-bottom:50px}
+.countdown{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}
+.time-box{position:relative;padding:25px 10px;border-left:1px solid #222}
+.time-box:last-child{border-right:1px solid #222}
+.time-number{
+    display:block;font-size:clamp(45px,8vw,100px);font-weight:900;
+    letter-spacing:-5px;line-height:.9;font-family:Arial,Helvetica,sans-serif;
+    font-variant-numeric:tabular-nums;transition:color .3s,text-shadow .3s;
+}
+.time-number.critical{
+    color:var(--accent);
+    text-shadow:0 0 20px rgba(var(--accent-rgb),.7);
+    animation:criticalPulse .8s infinite;
+}
+@keyframes criticalPulse{
+    0%,100%{transform:scale(1)}
+    50%{transform:scale(1.06)}
+}
+.time-label{display:block;margin-top:15px;font-size:9px;letter-spacing:5px;color:#555}
+.final-message{margin-top:70px;font-size:clamp(13px,2vw,20px);letter-spacing:6px;font-weight:700}
+.final-date{margin-top:18px;font-size:11px;letter-spacing:6px;color:var(--accent)}
+.names{margin-top:50px;font-size:10px;letter-spacing:7px;color:#555}
+
+/* TERMINAL INPUT */
+#terminal-console{
+    position:fixed;bottom:0;left:0;right:0;z-index:16;
+    background:linear-gradient(to top,rgba(0,0,0,.95),rgba(0,0,0,.7) 70%,transparent);
+    padding:40px max(20px,5vw) 18px;
+    font-size:11px;letter-spacing:1px;
+    opacity:0;visibility:hidden;transition:opacity .6s,visibility .6s;
+}
+#terminal-console.active{opacity:1;visibility:visible}
+#terminal-output{
+    max-height:130px;overflow-y:auto;
+    color:#555;line-height:1.9;margin-bottom:8px;
+    scrollbar-width:thin;scrollbar-color:#1d1d1d transparent;
+}
+#terminal-output::-webkit-scrollbar{width:4px}
+#terminal-output::-webkit-scrollbar-thumb{background:#1d1d1d}
+#terminal-output .line{animation:typeIn .15s ease-out}
+#terminal-output .ok{color:#aaa}
+#terminal-output .warn{color:var(--accent)}
+@keyframes typeIn{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
+.terminal-prompt{display:flex;align-items:center;gap:8px}
+.terminal-prompt .ps1{color:var(--accent);font-weight:700}
+#terminal-input{
+    flex:1;background:transparent;border:none;outline:none;
+    font-family:inherit;font-size:11px;letter-spacing:1px;
+    color:#ddd;caret-color:var(--accent);
 }
 
+/* ZERO SCREEN */
+#zero-screen{
+    position:fixed;inset:0;z-index:130;background:#000;
+    display:flex;justify-content:center;align-items:center;flex-direction:column;
+    opacity:0;visibility:hidden;transition:opacity 1.5s ease,visibility 1.5s ease;
+    text-align:center;padding:30px;
+}
+#zero-screen.active{opacity:1;visibility:visible}
+.zero-msg{
+    font-family:Arial,Helvetica,sans-serif;font-weight:1000;
+    font-size:clamp(30px,7vw,80px);letter-spacing:-3px;
+    line-height:.95;text-transform:uppercase;
+    opacity:0;animation:zeroIn 1.5s .5s forwards;
+}
+.zero-msg .red{color:var(--accent);text-shadow:0 0 25px rgba(var(--accent-rgb),.6)}
+.zero-sub{
+    margin-top:40px;font-size:12px;letter-spacing:8px;color:#777;
+    opacity:0;animation:fadeUp 1.5s 1.5s forwards;
+}
+.zero-final{
+    margin-top:22px;font-size:10px;letter-spacing:6px;color:var(--accent);
+    opacity:0;animation:fadeUp 1.5s 2s forwards;
+}
+.zero-names{
+    margin-top:60px;font-size:11px;letter-spacing:9px;color:#555;
+    opacity:0;animation:fadeUp 1.5s 2.6s forwards;
+}
+@keyframes zeroIn{
+    0%{opacity:0;transform:scale(1.4);filter:blur(30px)}
+    100%{opacity:1;transform:scale(1);filter:blur(0)}
+}
+
+/* KONAMI TOAST */
+#konami-toast{
+    position:fixed;top:50%;left:50%;
+    transform:translate(-50%,-50%) scale(.9);
+    padding:22px 32px;
+    background:rgba(0,0,0,.9);border:1px solid var(--accent);
+    font-size:11px;letter-spacing:4px;color:var(--accent);
+    text-align:center;line-height:2;z-index:160;
+    opacity:0;visibility:hidden;
+    transition:opacity .4s,visibility .4s,transform .4s;
+    box-shadow:0 0 40px rgba(var(--accent-rgb),.3);
+    pointer-events:none;
+}
+#konami-toast.show{
+    opacity:1;visibility:visible;
+    transform:translate(-50%,-50%) scale(1);
+}
+
+/* GLITCH TEXT */
+.glitch{position:relative}
+.glitch::before,.glitch::after{
+    content:attr(data-text);position:absolute;inset:0;pointer-events:none;
+}
+.glitch::before{
+    color:var(--accent);transform:translate(-2px,0);
+    clip-path:inset(20% 0 65% 0);animation:glitch1 4s infinite linear alternate-reverse;
+}
 .glitch::after{
-    color:#fff;
-    transform:translate(2px,0);
-    clip-path:inset(60% 0 10% 0);
-    animation:glitch2 3s infinite linear alternate-reverse;
+    color:#fff;transform:translate(2px,0);
+    clip-path:inset(60% 0 10% 0);animation:glitch2 3s infinite linear alternate-reverse;
 }
 
 @keyframes titleEnter{
     0%{opacity:0;transform:scale(1.3);filter:blur(20px)}
     100%{opacity:1;transform:scale(1);filter:blur(0)}
 }
-
 @keyframes fadeUp{
     from{opacity:0;transform:translateY(20px)}
     to{opacity:1;transform:translateY(0)}
 }
-
 @keyframes glitch1{
-    0%{clip-path:inset(20% 0 65% 0)}
-    20%{clip-path:inset(70% 0 5% 0)}
-    40%{clip-path:inset(40% 0 40% 0)}
-    60%{clip-path:inset(5% 0 80% 0)}
-    80%{clip-path:inset(55% 0 20% 0)}
-    100%{clip-path:inset(30% 0 50% 0)}
+    0%{clip-path:inset(20% 0 65% 0)}20%{clip-path:inset(70% 0 5% 0)}
+    40%{clip-path:inset(40% 0 40% 0)}60%{clip-path:inset(5% 0 80% 0)}
+    80%{clip-path:inset(55% 0 20% 0)}100%{clip-path:inset(30% 0 50% 0)}
 }
-
 @keyframes glitch2{
-    0%{clip-path:inset(60% 0 10% 0)}
-    25%{clip-path:inset(10% 0 70% 0)}
-    50%{clip-path:inset(80% 0 5% 0)}
-    75%{clip-path:inset(35% 0 45% 0)}
+    0%{clip-path:inset(60% 0 10% 0)}25%{clip-path:inset(10% 0 70% 0)}
+    50%{clip-path:inset(80% 0 5% 0)}75%{clip-path:inset(35% 0 45% 0)}
     100%{clip-path:inset(65% 0 15% 0)}
 }
 
@@ -545,440 +478,861 @@ body::after{
     .countdown-label{margin-bottom:30px}
     .final-message{margin-top:40px;letter-spacing:3px}
     .names{letter-spacing:4px}
+    .dossier-grid{grid-template-columns:1fr;gap:14px}
+    #timestamps,#signal-bar{display:none}
 }
 </style>
 </head>
-
 <body>
 
+<div id="cursor"></div>
+<canvas id="matrix-canvas"></canvas>
 <div class="red-vignette"></div>
 <div class="glitch-flash" id="glitchFlash"></div>
 
-<!-- =========================
-     LOADING / TERMINAL
-========================= -->
+<button id="audio-toggle" class="pulse">🔇 ÁUDIO OFF</button>
 
+<div id="timestamps"></div>
+<div id="signal-bar">
+    <div class="bar" style="height:4px"></div>
+    <div class="bar" style="height:7px"></div>
+    <div class="bar" style="height:10px"></div>
+    <div class="bar" style="height:13px"></div>
+    <div class="bar" style="height:16px"></div>
+    <span class="label" id="signal-label">SINAL</span>
+</div>
+
+<!-- ============ LOADING ============ -->
 <section id="loading-screen">
-
 <div class="loading-wrapper">
-
     <div class="top-bar">
         <span>SECURE CHANNEL // 10.10</span>
         <span class="online">SYSTEM ONLINE</span>
     </div>
 
-    <div class="terminal">
-
+    <div class="terminal" id="terminal">
         <div class="terminal-line" id="line1">
-            <span class="prompt">&gt;</span>
-            BOOTING CLASSIFIED EVENT PROTOCOL...
+            <span class="prompt">&gt;</span> BOOTING CLASSIFIED EVENT PROTOCOL...
         </div>
-
         <div class="terminal-line" id="line2">
-            <span class="prompt">&gt;</span>
-            <span class="white">ENCRYPTED CONNECTION ESTABLISHED</span>
+            <span class="prompt">&gt;</span> <span class="white">ENCRYPTED CONNECTION ESTABLISHED</span>
         </div>
-
         <div class="terminal-line" id="line3">
-            <span class="prompt">&gt;</span>
-            SCANNING EVENT PARAMETERS...
+            <span class="prompt">&gt;</span> SCANNING EVENT PARAMETERS...
         </div>
-
         <div class="terminal-line" id="line4">
-            <span class="prompt">&gt;</span>
-            <span class="red">3 SUBJECTS DETECTED</span>
+            <span class="prompt">&gt;</span> <span class="red">3 SUBJECTS DETECTED</span>
         </div>
-
         <div class="terminal-line" id="line5">
-            <span class="prompt">&gt;</span>
-            DATE LOCK: <span class="white">10.10.2026</span>
+            <span class="prompt">&gt;</span> DATE LOCK: <span class="white">10.10.2026</span>
         </div>
-
         <div class="terminal-line" id="line6">
-            <span class="prompt">&gt;</span>
-            LOCATION: <span class="white">UNKNOWN</span>
+            <span class="prompt">&gt;</span> LOCATION: <span class="redacted">████████</span> <span class="white">[REDACTED]</span>
         </div>
-
         <div class="terminal-line" id="line7">
-            <span class="prompt">&gt;</span>
-            NIGHT PROTOCOL: <span class="red">ARMED</span>
+            <span class="prompt">&gt;</span> NIGHT PROTOCOL: <span class="red">ARMED</span>
         </div>
-
         <div class="terminal-line" id="line8">
-            <span class="prompt">&gt;</span>
-            CONSEQUENCES: <span class="white">UNKNOWN</span>
+            <span class="prompt">&gt;</span> CONSEQUENCES: <span class="redacted">██████</span>
             <span class="cursor"></span>
         </div>
 
         <div class="classified">
-
-            <div class="classified-title">
-                // CLASSIFIED OPERATION
-            </div>
-
+            <div class="classified-title">// CLASSIFIED OPERATION</div>
             <div class="data-grid">
-
-                <div class="data-item">
-                    <label>SUBJECTS</label>
-                    <strong>03</strong>
-                </div>
-
-                <div class="data-item">
-                    <label>DATE</label>
-                    <strong>10.10.2026</strong>
-                </div>
-
-                <div class="data-item">
-                    <label>STATUS</label>
-                    <strong class="red">PENDING</strong>
-                </div>
-
+                <div class="data-item"><label>SUBJECTS</label><strong>03</strong></div>
+                <div class="data-item"><label>DATE</label><strong>10.10.2026</strong></div>
+                <div class="data-item"><label>STATUS</label><strong class="red">PENDING</strong></div>
             </div>
-
         </div>
 
         <div class="progress-section">
-
             <div class="progress-meta">
                 <span>INITIALIZING NIGHT...</span>
                 <span id="percent">0%</span>
             </div>
-
             <div class="progress-track">
                 <div class="progress-fill" id="loadingProgress"></div>
             </div>
-
             <div class="access">
                 <span id="accessText">AWAITING SYSTEM RESPONSE...</span>
                 <span class="right">NODE: 10.10</span>
             </div>
-
         </div>
-
     </div>
-
 </div>
-
 </section>
 
+<!-- ============ RECONNECT ============ -->
+<div id="reconnecting">
+    <div class="reconnect-text">
+        <span class="accent">▮▮</span> RECONECTANDO SINAL <span id="reconnect-dots">...</span>
+    </div>
+</div>
 
-<!-- =========================
-     INTRO
-========================= -->
-
+<!-- ============ INTRO ============ -->
 <section id="intro">
-
-<div class="intro-content">
-
-    <div class="small-label">
-        OPERAÇÃO CLASSIFICADA — 10.10
-    </div>
-
-    <h1 class="main-title glitch" data-text="TRÊS HOMENS.">
-        TRÊS HOMENS.
-        <br>
-        <span class="red">UMA NOITE.</span>
+<div class="intro-content" id="intro-parallax">
+    <div class="small-label">OPERAÇÃO CLASSIFICADA — 10.10</div>
+    <h1 class="main-title glitch" data-text="TRÊS HOMENS." id="intro-title">
+        TRÊS HOMENS.<br><span class="red">UMA NOITE.</span>
     </h1>
-
-    <div class="date">
-        10.10.2026
-    </div>
-
-    <div class="warning">
-        A NOITE QUE NÃO DEVERIA EXISTIR.
-    </div>
-
+    <div class="date">10.10.2026</div>
+    <div class="warning">A NOITE QUE NÃO DEVERIA EXISTIR.</div>
 </div>
-
 </section>
 
+<!-- ============ DOSSIERS ============ -->
+<section id="dossiers">
+<div class="dossier-wrap">
+    <div class="dossier-header">
+        <span>// SUBJECT FILES — DECLASSIFIED</span>
+        <span class="blink">● REC</span>
+    </div>
 
-<!-- =========================
-     COUNTDOWN
-========================= -->
+    <div class="dossier active" data-idx="0">
+        <div class="dossier-number">SUBJECT / 01</div>
+        <div class="dossier-name glitch" data-text="MYLLER">MYLLER</div>
+        <div class="dossier-grid">
+            <div class="dossier-field"><label>STATUS</label><span class="accent">ACTIVE</span></div>
+            <div class="dossier-field"><label>ROLE</label><span class="redacted">███████</span></div>
+            <div class="dossier-field"><label>ORIGIN</label><span>UNKNOWN</span></div>
+            <div class="dossier-field"><label>THREAT</label><span class="accent">CLASSIFIED</span></div>
+        </div>
+        <div class="dossier-bio">
+            &gt; O PRIMEIRO A ACEITAR.<br>
+            &gt; <span class="warn">NÃO PERGUNTOU ONDE.</span><br>
+            &gt; NÃO PERGUNTOU POR QUÊ.
+        </div>
+    </div>
 
+    <div class="dossier" data-idx="1">
+        <div class="dossier-number">SUBJECT / 02</div>
+        <div class="dossier-name glitch" data-text="COSTA">COSTA</div>
+        <div class="dossier-grid">
+            <div class="dossier-field"><label>STATUS</label><span class="accent">ACTIVE</span></div>
+            <div class="dossier-field"><label>ROLE</label><span class="redacted">███████</span></div>
+            <div class="dossier-field"><label>ORIGIN</label><span>UNKNOWN</span></div>
+            <div class="dossier-field"><label>THREAT</label><span class="accent">CLASSIFIED</span></div>
+        </div>
+        <div class="dossier-bio">
+            &gt; O SEGUNDO A CONFIRMAR.<br>
+            &gt; <span class="warn">JÁ SABIA O QUE VIRIA.</span><br>
+            &gt; MESMO ASSIM, DISSE SIM.
+        </div>
+    </div>
+
+    <div class="dossier" data-idx="2">
+        <div class="dossier-number">SUBJECT / 03</div>
+        <div class="dossier-name glitch" data-text="JANTARA">JANTARA</div>
+        <div class="dossier-grid">
+            <div class="dossier-field"><label>STATUS</label><span class="accent">ACTIVE</span></div>
+            <div class="dossier-field"><label>ROLE</label><span class="redacted">███████</span></div>
+            <div class="dossier-field"><label>ORIGIN</label><span>UNKNOWN</span></div>
+            <div class="dossier-field"><label>THREAT</label><span class="accent">CLASSIFIED</span></div>
+        </div>
+        <div class="dossier-bio">
+            &gt; O ÚLTIMO A SER INFORMADO.<br>
+            &gt; <span class="warn">NÃO HAVIA VOLTA.</span><br>
+            &gt; A NOITE JÁ ESTAVA ARMADA.
+        </div>
+    </div>
+
+    <div class="dossier-progress">
+        <div class="dot active"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+    </div>
+</div>
+</section>
+<button id="dossier-skip">PULAR &gt;&gt;</button>
+
+<!-- ============ COUNTDOWN ============ -->
 <section id="countdown-screen">
-
 <div class="countdown-container">
-
-    <div class="countdown-label">
-        A CONTAGEM REGRESSIVA COMEÇOU
-    </div>
-
+    <div class="countdown-label">A CONTAGEM REGRESSIVA COMEÇOU</div>
     <div class="countdown">
-
-        <div class="time-box">
-            <span class="time-number" id="days">00</span>
-            <span class="time-label">DIAS</span>
-        </div>
-
-        <div class="time-box">
-            <span class="time-number" id="hours">00</span>
-            <span class="time-label">HORAS</span>
-        </div>
-
-        <div class="time-box">
-            <span class="time-number" id="minutes">00</span>
-            <span class="time-label">MINUTOS</span>
-        </div>
-
-        <div class="time-box">
-            <span class="time-number" id="seconds">00</span>
-            <span class="time-label">SEGUNDOS</span>
-        </div>
-
+        <div class="time-box"><span class="time-number" id="days">00</span><span class="time-label">DIAS</span></div>
+        <div class="time-box"><span class="time-number" id="hours">00</span><span class="time-label">HORAS</span></div>
+        <div class="time-box"><span class="time-number" id="minutes">00</span><span class="time-label">MINUTOS</span></div>
+        <div class="time-box"><span class="time-number" id="seconds">00</span><span class="time-label">SEGUNDOS</span></div>
     </div>
-
-    <div class="final-message">
-        A NOITE QUE NÃO DEVERIA EXISTIR.
-    </div>
-
-    <div class="final-date">
-        10.10.2026
-    </div>
-
-    <div class="names">
-        MYLLER × COSTA × JANTARA
-    </div>
-
+    <div class="final-message">A NOITE QUE NÃO DEVERIA EXISTIR.</div>
+    <div class="final-date">10.10.2026</div>
+    <div class="names">MYLLER × COSTA × JANTARA</div>
 </div>
-
 </section>
 
+<!-- ============ TERMINAL INPUT ============ -->
+<div id="terminal-console">
+    <div id="terminal-output">
+        <div class="line ok">&gt; CONEXÃO ESTABELECIDA. DIGITE <span style="color:var(--accent)">HELP</span> PARA VER OS COMANDOS.</div>
+    </div>
+    <div class="terminal-prompt">
+        <span class="ps1">&gt;</span>
+        <input type="text" id="terminal-input" autocomplete="off" spellcheck="false" placeholder="aguardando comando...">
+    </div>
+</div>
+
+<!-- ============ ZERO SCREEN ============ -->
+<section id="zero-screen">
+    <div class="zero-msg">
+        É HOJE.<br><span class="red">A NOITE COMEÇOU.</span>
+    </div>
+    <div class="zero-sub">10.10.2026 // PROTOCOLO ATIVO</div>
+    <div class="zero-final">NÃO HÁ MAIS VOLTA.</div>
+    <div class="zero-names">MYLLER × COSTA × JANTARA</div>
+</section>
+
+<!-- ============ KONAMI TOAST ============ -->
+<div id="konami-toast">
+    ◆ PROTOCOLO OCULTO ATIVADO ◆<br>
+    <span style="color:#fff;font-size:9px;letter-spacing:3px">ACESSO NÍVEL: ADMINISTRADOR</span>
+</div>
 
 <script>
-
 /* =========================================
-   CONFIGURAÇÃO
+   CONFIG
 ========================================= */
-
 const targetDate = new Date("2026-10-10T00:00:00-03:00");
 
-const loadingScreen =
-    document.getElementById("loading-screen");
-
-const progress =
-    document.getElementById("loadingProgress");
-
-const percent =
-    document.getElementById("percent");
-
-const intro =
-    document.getElementById("intro");
-
-const countdownScreen =
-    document.getElementById("countdown-screen");
-
-const accessText =
-    document.getElementById("accessText");
-
-const glitchFlash =
-    document.getElementById("glitchFlash");
-
+const $ = id => document.getElementById(id);
+const loadingScreen = $("loading-screen");
+const progress = $("loadingProgress");
+const percent = $("percent");
+const intro = $("intro");
+const dossiers = $("dossiers");
+const countdownScreen = $("countdown-screen");
+const accessText = $("accessText");
+const glitchFlash = $("glitchFlash");
+const reconnecting = $("reconnecting");
+const zeroScreen = $("zero-screen");
+const terminalConsole = $("terminal-console");
+const terminalInput = $("terminal-input");
+const terminalOutput = $("terminal-output");
+const audioToggle = $("audio-toggle");
+const cursor = $("cursor");
+const konamiToast = $("konami-toast");
 
 /* =========================================
-   TERMINAL
+   AUDIO (Web Audio API — sem arquivos)
 ========================================= */
+let audioCtx = null;
+let muted = true;
+let droneNodes = null;
+let audioReady = false;
 
-const terminalLines = [
-    document.getElementById("line1"),
-    document.getElementById("line2"),
-    document.getElementById("line3"),
-    document.getElementById("line4"),
-    document.getElementById("line5"),
-    document.getElementById("line6"),
-    document.getElementById("line7"),
-    document.getElementById("line8")
-];
+function initAudio(){
+    if(audioReady) return;
+    try{
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        audioReady = true;
+    }catch(e){ console.warn("Audio não suportado"); }
+}
 
+function resumeAudio(){
+    initAudio();
+    if(audioCtx && audioCtx.state === "suspended"){
+        audioCtx.resume();
+    }
+}
+
+function playBeep(freq=800, dur=0.05, vol=0.04, type="square"){
+    if(muted || !audioCtx) return;
+    const t = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(vol, t);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    osc.connect(gain).connect(audioCtx.destination);
+    osc.start(t); osc.stop(t + dur);
+}
+
+function playNoise(dur=0.08, vol=0.05){
+    if(muted || !audioCtx) return;
+    const size = Math.floor(audioCtx.sampleRate * dur);
+    const buf = audioCtx.createBuffer(1, size, audioCtx.sampleRate);
+    const data = buf.getChannelData(0);
+    for(let i=0;i<size;i++) data[i] = (Math.random()*2-1) * (1 - i/size);
+    const src = audioCtx.createBufferSource();
+    src.buffer = buf;
+    const gain = audioCtx.createGain();
+    const t = audioCtx.currentTime;
+    gain.gain.setValueAtTime(vol, t);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    src.connect(gain).connect(audioCtx.destination);
+    src.start(t);
+}
+
+function startDrone(){
+    if(!audioCtx || droneNodes) return;
+    const o1 = audioCtx.createOscillator();
+    const o2 = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    const lfo = audioCtx.createOscillator();
+    const lfoGain = audioCtx.createGain();
+    o1.type = "sine"; o1.frequency.value = 52;
+    o2.type = "sine"; o2.frequency.value = 52.7;
+    lfo.type = "sine"; lfo.frequency.value = 0.15;
+    lfoGain.gain.value = 0.012;
+    g.gain.value = 0.035;
+    lfo.connect(lfoGain).connect(g.gain);
+    o1.connect(g); o2.connect(g);
+    g.connect(audioCtx.destination);
+    o1.start(); o2.start(); lfo.start();
+    droneNodes = {o1,o2,g,lfo};
+}
+function stopDrone(){
+    if(!droneNodes) return;
+    try{
+        droneNodes.o1.stop(); droneNodes.o2.stop(); droneNodes.lfo.stop();
+    }catch(e){}
+    droneNodes = null;
+}
+
+function toggleAudio(){
+    initAudio();
+    resumeAudio();
+    muted = !muted;
+    audioToggle.classList.remove("pulse");
+    if(muted){
+        audioToggle.textContent = "🔇 ÁUDIO OFF";
+        audioToggle.classList.remove("on");
+        stopDrone();
+    }else{
+        audioToggle.textContent = "🔊 ÁUDIO ON";
+        audioToggle.classList.add("on");
+        startDrone();
+        playBeep(880, 0.08, 0.05);
+    }
+}
+audioToggle.addEventListener("click", toggleAudio);
+
+// Primeira interação ativa o áudio automaticamente
+function firstInteraction(){
+    initAudio();
+    resumeAudio();
+    if(muted){
+        // Ativa por padrão na primeira interação
+        toggleAudio();
+    }
+}
+document.addEventListener("click", firstInteraction, {once:true});
+document.addEventListener("keydown", firstInteraction, {once:true});
+document.addEventListener("touchstart", firstInteraction, {once:true});
+
+/* =========================================
+   CUSTOM CURSOR
+========================================= */
+if(window.matchMedia("(hover:hover)").matches){
+    let cx=0,cy=0,tx=0,ty=0;
+    document.addEventListener("mousemove", e => {
+        tx = e.clientX; ty = e.clientY;
+    });
+    function animCursor(){
+        cx += (tx-cx)*0.25;
+        cy += (ty-cy)*0.25;
+        cursor.style.left = cx+"px";
+        cursor.style.top = cy+"px";
+        requestAnimationFrame(animCursor);
+    }
+    animCursor();
+    document.querySelectorAll("button, input, a, .time-box, .dossier").forEach(el=>{
+        el.addEventListener("mouseenter", ()=>cursor.classList.add("hover"));
+        el.addEventListener("mouseleave", ()=>cursor.classList.remove("hover"));
+    });
+}
+
+/* =========================================
+   TERMINAL LOG (linhas digitando)
+========================================= */
+const terminalLines = [1,2,3,4,5,6,7,8].map(i => $("line"+i));
 let lineIndex = 0;
 
 function showNextLine(){
-
     if(lineIndex >= terminalLines.length) return;
-
     terminalLines[lineIndex].classList.add("show");
-
+    playBeep(1100 + Math.random()*300, 0.02, 0.015, "square");
     lineIndex++;
-
-    setTimeout(
-        showNextLine,
-        230 + Math.random() * 260
-    );
+    setTimeout(showNextLine, 230 + Math.random()*260);
 }
-
-setTimeout(showNextLine,500);
-
+setTimeout(showNextLine, 500);
 
 /* =========================================
-   GLITCH RANDOM
+   GLITCH
 ========================================= */
-
-function glitch(){
-
+function glitch(red=false){
     glitchFlash.classList.remove("active");
-
+    glitchFlash.classList.toggle("red", red);
     void glitchFlash.offsetWidth;
-
     glitchFlash.classList.add("active");
-
+    playNoise(0.06, 0.04);
 }
-
 setInterval(()=>{
-
-    if(Math.random() > .62){
-        glitch();
-    }
-
-},1700);
-
+    if(Math.random() > 0.62) glitch();
+}, 1700);
 
 /* =========================================
-   LOADING
+   INTRUSION ALERT (easter egg durante loading)
 ========================================= */
+let intrusionShown = false;
+function triggerIntrusion(){
+    if(intrusionShown) return;
+    intrusionShown = true;
+    const term = $("terminal");
+    const alert1 = document.createElement("div");
+    alert1.className = "terminal-line show error";
+    alert1.innerHTML = '<span class="prompt">!</span> <span class="red">ALERTA: TENTATIVA DE INTRUSÃO DETECTADA</span>';
+    const alert2 = document.createElement("div");
+    alert2.className = "terminal-line show error";
+    alert2.innerHTML = '<span class="prompt">!</span> <span class="red">BLOQUEANDO ACESSO NÃO AUTORIZADO...</span>';
+    term.insertBefore(alert2, term.querySelector(".classified"));
+    term.insertBefore(alert1, alert2);
+    glitch(true);
+    playBeep(220, 0.15, 0.06, "sawtooth");
+    setTimeout(()=>{
+        const alert3 = document.createElement("div");
+        alert3.className = "terminal-line show";
+        alert3.innerHTML = '<span class="prompt">&gt;</span> <span class="white">BLOQUEIO CONTORNADO. CONTINUANDO...</span>';
+        term.insertBefore(alert3, term.querySelector(".classified"));
+        playBeep(880, 0.06, 0.03);
+    }, 1200);
+    setTimeout(()=>{
+        alert1.style.opacity = "0.3";
+        alert2.style.opacity = "0.3";
+        alert1.style.transition = "opacity .5s";
+        alert2.style.transition = "opacity .5s";
+    }, 2500);
+}
 
+/* =========================================
+   LOADING PROGRESS
+========================================= */
 let loading = 0;
-
 const loadingInterval = setInterval(()=>{
+    if(loading < 65) loading += Math.random()*3.8;
+    else if(loading < 88) loading += Math.random()*2;
+    else loading += Math.random()*0.65;
 
-    if(loading < 65){
-        loading += Math.random() * 3.8;
+    // Intrusion em ~35-55%
+    if(loading > 35 && loading < 60 && !intrusionShown && Math.random() > 0.7){
+        triggerIntrusion();
     }
-
-    else if(loading < 88){
-        loading += Math.random() * 2;
-    }
-
-    else{
-        loading += Math.random() * .65;
-    }
-
 
     if(loading >= 100){
-
         loading = 100;
-
         clearInterval(loadingInterval);
-
         progress.style.width = "100%";
         percent.textContent = "100%";
-
-        accessText.textContent =
-            "ACCESS GRANTED // NIGHT PROTOCOL ARMED";
-
-        accessText.style.color =
-            "#ff1717";
-
+        accessText.textContent = "ACCESS GRANTED // NIGHT PROTOCOL ARMED";
+        accessText.style.color = "var(--accent)";
+        playBeep(1200, 0.1, 0.06);
+        setTimeout(()=>playBeep(1600, 0.1, 0.06), 100);
 
         setTimeout(()=>{
-
             glitch();
-
             setTimeout(()=>{
-
                 loadingScreen.classList.add("hide");
-
                 setTimeout(()=>{
+                    showReconnecting();
+                }, 400);
+            }, 250);
+        }, 700);
+        return;
+    }
+    progress.style.width = loading + "%";
+    percent.textContent = Math.floor(loading) + "%";
+}, 100);
 
-                    intro.classList.add("active");
+/* =========================================
+   RECONNECTING PHASE
+========================================= */
+function showReconnecting(){
+    reconnecting.classList.add("active");
+    const dots = $("reconnect-dots");
+    let d = 0;
+    const iv = setInterval(()=>{
+        d = (d+1) % 4;
+        dots.textContent = ".".repeat(d);
+        if(d === 0) playBeep(400, 0.03, 0.02);
+    }, 400);
+    setTimeout(()=>{
+        clearInterval(iv);
+        reconnecting.classList.remove("active");
+        setTimeout(()=>{
+            intro.classList.add("active");
+            startIntroSequence();
+        }, 500);
+    }, 1800);
+}
 
-                    /*
-                     * Tempo da tela:
-                     * TRÊS HOMENS. UMA NOITE.
-                     */
-
-                    setTimeout(()=>{
-
-                        intro.classList.remove("active");
-
-                        setTimeout(()=>{
-
-                            countdownScreen.classList.add("active");
-
-                        },800);
-
-                    },4200);
-
-                },600);
-
-            },250);
-
-        },700);
-
+/* =========================================
+   INTRO SEQUENCE
+========================================= */
+function startIntroSequence(){
+    // Parallax no título
+    const introParallax = $("intro-parallax");
+    if(window.matchMedia("(hover:hover)").matches){
+        let mx=0,my=0,tMx=0,tMy=0;
+        document.addEventListener("mousemove", e=>{
+            tMx = (e.clientX / window.innerWidth - 0.5) * 20;
+            tMy = (e.clientY / window.innerHeight - 0.5) * 20;
+        });
+        function animP(){
+            mx += (tMx-mx)*0.08;
+            my += (tMy-my)*0.08;
+            introParallax.style.transform = `translate(${mx}px,${my}px)`;
+            requestAnimationFrame(animP);
+        }
+        animP();
     }
 
+    setTimeout(()=>{
+        intro.classList.remove("active");
+        setTimeout(()=>{
+            startDossiers();
+        }, 800);
+    }, 4200);
+}
 
-    progress.style.width = loading + "%";
+/* =========================================
+   DOSSIERS SEQUENCE
+========================================= */
+function startDossiers(){
+    dossiers.classList.add("active");
+    const items = document.querySelectorAll(".dossier");
+    const dots = document.querySelectorAll(".dossier-progress .dot");
+    const skip = $("dossier-skip");
+    skip.classList.add("show");
+    let idx = 0;
+    let skipped = false;
 
-    percent.textContent =
-        Math.floor(loading) + "%";
+    function show(i){
+        if(skipped) return;
+        items.forEach((el,j)=>el.classList.toggle("active", j===i));
+        dots.forEach((el,j)=>el.classList.toggle("active", j===i));
+        glitch();
+        playBeep(700 + i*100, 0.08, 0.04);
+        const next = setTimeout(()=>{
+            if(i < items.length-1){
+                show(i+1);
+            }else{
+                skip.classList.remove("show");
+                endDossiers();
+            }
+        }, 2800);
+        show._timer = next;
+    }
 
+    skip.addEventListener("click", ()=>{
+        skipped = true;
+        clearTimeout(show._timer);
+        skip.classList.remove("show");
+        endDossiers();
+    }, {once:true});
 
-},100);
+    setTimeout(()=>show(0), 300);
+}
 
+function endDossiers(){
+    dossiers.classList.remove("active");
+    setTimeout(()=>{
+        countdownScreen.classList.add("active");
+        document.getElementById("matrix-canvas").classList.add("active");
+        initMatrix();
+        startTimestamps();
+        startSignal();
+        // Ativa terminal interativo
+        setTimeout(()=>{
+            terminalConsole.classList.add("active");
+            terminalInput.focus();
+        }, 800);
+    }, 700);
+}
 
 /* =========================================
    COUNTDOWN
 ========================================= */
-
+let zeroTriggered = false;
 function updateCountdown(){
+    const diff = targetDate.getTime() - Date.now();
 
-    const now = new Date();
-
-    const difference =
-        targetDate.getTime() - now.getTime();
-
-
-    if(difference <= 0){
-
-        document.getElementById("days").textContent = "00";
-        document.getElementById("hours").textContent = "00";
-        document.getElementById("minutes").textContent = "00";
-        document.getElementById("seconds").textContent = "00";
-
+    if(diff <= 0){
+        ["days","hours","minutes","seconds"].forEach(id=>$(id).textContent = "00");
+        if(!zeroTriggered){
+            zeroTriggered = true;
+            triggerZeroScreen();
+        }
         return;
     }
 
+    const total = Math.floor(diff/1000);
+    const days = Math.floor(total/86400);
+    const hours = Math.floor((total%86400)/3600);
+    const minutes = Math.floor((total%3600)/60);
+    const seconds = total%60;
 
-    const totalSeconds =
-        Math.floor(difference / 1000);
+    $("days").textContent = String(days).padStart(2,"0");
+    $("hours").textContent = String(hours).padStart(2,"0");
+    $("minutes").textContent = String(minutes).padStart(2,"0");
+    $("seconds").textContent = String(seconds).padStart(2,"0");
 
+    // Marcar como crítico se faltam menos de 10s
+    const critical = days===0 && hours===0 && minutes===0 && seconds<=10;
+    document.querySelectorAll(".time-number").forEach(el=>{
+        el.classList.toggle("critical", critical);
+    });
+    if(critical && seconds <= 10){
+        playBeep(1200, 0.06, 0.05);
+    }
+}
+updateCountdown();
+setInterval(updateCountdown, 1000);
 
-    const days =
-        Math.floor(totalSeconds / 86400);
-
-    const hours =
-        Math.floor(
-            (totalSeconds % 86400) / 3600
-        );
-
-    const minutes =
-        Math.floor(
-            (totalSeconds % 3600) / 60
-        );
-
-    const seconds =
-        totalSeconds % 60;
-
-
-    document.getElementById("days").textContent =
-        String(days).padStart(2,"0");
-
-    document.getElementById("hours").textContent =
-        String(hours).padStart(2,"0");
-
-    document.getElementById("minutes").textContent =
-        String(minutes).padStart(2,"0");
-
-    document.getElementById("seconds").textContent =
-        String(seconds).padStart(2,"0");
-
+/* =========================================
+   ZERO SCREEN
+========================================= */
+function triggerZeroScreen(){
+    countdownScreen.classList.remove("active");
+    terminalConsole.classList.remove("active");
+    glitch(true);
+    playNoise(0.4, 0.08);
+    setTimeout(()=>{
+        zeroScreen.classList.add("active");
+        playBeep(1200, 0.15, 0.06);
+        setTimeout(()=>playBeep(1600, 0.15, 0.06), 200);
+        setTimeout(()=>playBeep(2000, 0.4, 0.08), 400);
+    }, 500);
 }
 
-updateCountdown();
+/* =========================================
+   TIMESTAMPS
+========================================= */
+function startTimestamps(){
+    const el = $("timestamps");
+    el.classList.add("active");
+    function pad(n){return String(n).padStart(2,"0")}
+    function update(){
+        const d = new Date();
+        const t = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+        const rand = Math.random();
+        let line1 = `[${t}] NODE_10.10 // LINK ATIVO`;
+        let line2 = `[${t}] ENCRYPT AES-256 // <span class="log-red">OK</span>`;
+        let line3 = `[${t}] PING ${Math.floor(20+Math.random()*80)}ms // STABLE`;
+        if(rand > 0.9) line3 = `[${t}] <span class="log-red">PACOTE SUSPEITO BLOQUEADO</span>`;
+        el.innerHTML = `${line1}<br>${line2}<br>${line3}`;
+    }
+    update();
+    setInterval(update, 2200);
+}
 
-setInterval(updateCountdown,1000);
+/* =========================================
+   SIGNAL BAR
+========================================= */
+function startSignal(){
+    const el = $("signal-bar");
+    el.classList.add("active");
+    const bars = el.querySelectorAll(".bar");
+    function update(){
+        const strength = 3 + Math.floor(Math.random()*3); // 3-5
+        bars.forEach((b,i)=>{
+            b.classList.toggle("on", i < strength);
+        });
+        $("signal-label").textContent = strength >= 4 ? "SINAL OK" : "SINAL FRACO";
+    }
+    update();
+    setInterval(update, 1800);
+}
 
+/* =========================================
+   MATRIX BACKGROUND
+========================================= */
+function initMatrix(){
+    const canvas = $("matrix-canvas");
+    const ctx = canvas.getContext("2d");
+    function resize(){
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener("resize", resize);
+
+    const chars = "01アイウエオカキクケコサシスセソ10.10ABCDEF";
+    const fontSize = 14;
+    const cols = Math.floor(canvas.width / fontSize);
+    const drops = new Array(cols).fill(1);
+
+    function draw(){
+        ctx.fillStyle = "rgba(0,0,0,0.08)";
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.fillStyle = "rgba(255,17,17,0.55)";
+        ctx.font = fontSize + "px monospace";
+        for(let i=0;i<drops.length;i++){
+            const txt = chars.charAt(Math.floor(Math.random()*chars.length));
+            ctx.fillText(txt, i*fontSize, drops[i]*fontSize);
+            if(drops[i]*fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+            drops[i]++;
+        }
+    }
+    setInterval(draw, 55);
+}
+
+/* =========================================
+   TERMINAL INTERATIVO
+========================================= */
+const commands = {
+    help(){
+        addLine("COMANDOS DISPONÍVEIS:", "ok");
+        addLine("  HELP      — lista comandos");
+        addLine("  WHOAMI    — identifica usuário");
+        addLine("  SUBJECTS  — lista sujeitos");
+        addLine("  DATE      — data do evento");
+        addLine("  STATUS    — status do protocolo");
+        addLine("  10.10     — mensagem especial", "warn");
+        addLine("  REVEAL    — revelar o oculto", "warn");
+        addLine("  MYLLER / COSTA / JANTARA");
+        addLine("  CLEAR     — limpar terminal");
+    },
+    whoami(){
+        addLine("USUÁRIO: ANÔNIMO_0x10", "ok");
+        addLine("NÍVEL DE ACESSO: LIMITADO");
+        addLine("SESSION: " + Math.random().toString(36).slice(2,10).toUpperCase());
+    },
+    subjects(){
+        addLine("3 SUJEITOS DETECTADOS:", "warn");
+        addLine("  [01] MYLLER  — STATUS: ATIVO");
+        addLine("  [02] COSTA   — STATUS: ATIVO");
+        addLine("  [03] JANTARA — STATUS: ATIVO");
+    },
+    date(){
+        addLine("EVENTO LOCKADO: 10.10.2026");
+        const diff = targetDate.getTime() - Date.now();
+        if(diff > 0){
+            const d = Math.floor(diff/86400000);
+            addLine(`FALTAM ${d} DIAS.`, "warn");
+        }else{
+            addLine("É HOJE.", "warn");
+        }
+    },
+    status(){
+        addLine("NIGHT PROTOCOL: ARMED", "warn");
+        addLine("SUJEITOS: 3/3 CONFIRMADOS", "ok");
+        addLine("LOCAL: ████████ [REDACTED]");
+    },
+    "10.10"(){
+        addLine("> A NOITE QUE NÃO DEVERIA EXISTIR.", "warn");
+        addLine("> NÃO HÁ COMO VOLTAR ATRÁS.");
+        addLine("> ELES SABEM.");
+    },
+    reveal(){
+        addLine(">> ACESSANDO ARQUIVO OCULTO...", "warn");
+        setTimeout(()=>addLine(">> ██████ █████ ██ ███ ████████"), 400);
+        setTimeout(()=>addLine(">> CHAVE: K0N4M1 / D3C0D3", "warn"), 900);
+        setTimeout(()=>addLine(">> DIGITE OS NOMES PARA MAIS INFO."), 1400);
+        glitch(true);
+    },
+    myller(){
+        addLine("MYLLER — O PRIMEIRO.", "warn");
+        addLine("NÃO PERGUNTOU ONDE. NÃO PERGUNTOU POR QUÊ.");
+    },
+    costa(){
+        addLine("COSTA — O SEGUNDO.", "warn");
+        addLine("JÁ SABIA O QUE VIRIA. MESMO ASSIM, DISSE SIM.");
+    },
+    jantara(){
+        addLine("JANTARA — O ÚLTIMO.", "warn");
+        addLine("NÃO HAVIA VOLTA. A NOITE JÁ ESTAVA ARMADA.");
+    },
+    clear(){
+        terminalOutput.innerHTML = "";
+    }
+};
+
+function addLine(text, cls=""){
+    const d = document.createElement("div");
+    d.className = "line " + cls;
+    d.innerHTML = "&gt; " + text;
+    terminalOutput.appendChild(d);
+    terminalOutput.scrollTop = terminalOutput.scrollHeight;
+    playBeep(700, 0.015, 0.012);
+}
+
+terminalInput.addEventListener("keydown", e=>{
+    if(e.key === "Enter"){
+        const cmd = terminalInput.value.trim().toLowerCase();
+        if(!cmd) return;
+        addLine("> " + terminalInput.value);
+        terminalInput.value = "";
+        if(commands[cmd]){
+            commands[cmd]();
+        }else{
+            addLine("COMANDO NÃO RECONHECIDO: " + cmd, "warn");
+            addLine("DIGITE 'HELP' PARA VER OS COMANDOS.");
+        }
+        playBeep(1000, 0.03, 0.03);
+    }
+});
+
+// Focus automático no input quando o usuário clica fora
+document.addEventListener("click", e=>{
+    if(terminalConsole.classList.contains("active") &&
+       !e.target.closest("#terminal-console") &&
+       !e.target.closest("button")){
+        terminalInput.focus();
+    }
+});
+
+/* =========================================
+   KONAMI CODE
+========================================= */
+const konamiSeq = ["ArrowUp","ArrowUp","ArrowDown","ArrowDown","ArrowLeft","ArrowRight","ArrowLeft","ArrowRight","b","a"];
+let konamiIdx = 0;
+document.addEventListener("keydown", e=>{
+    if(e.key === konamiSeq[konamiIdx] || e.key.toLowerCase() === konamiSeq[konamiIdx]){
+        konamiIdx++;
+        if(konamiIdx === konamiSeq.length){
+            konamiIdx = 0;
+            triggerKonami();
+        }
+    }else{
+        konamiIdx = 0;
+    }
+});
+
+function triggerKonami(){
+    document.documentElement.style.setProperty("--accent", "#00ff41");
+    document.documentElement.style.setProperty("--accent-rgb", "0,255,65");
+    konamiToast.classList.add("show");
+    glitch(true);
+    playBeep(600, 0.1, 0.05);
+    setTimeout(()=>playBeep(900, 0.1, 0.05), 100);
+    setTimeout(()=>playBeep(1400, 0.15, 0.06), 220);
+    setTimeout(()=>konamiToast.classList.remove("show"), 4000);
+    console.log("%c>> PROTOCOLO OCULTO ATIVADO. BEM-VINDO, ADMIN.","color:#00ff41;font-family:monospace;font-size:14px");
+}
+
+/* =========================================
+   TAB VISIBILITY
+========================================= */
+const originalTitle = document.title;
+document.addEventListener("visibilitychange", ()=>{
+    if(document.hidden){
+        document.title = "⚠ SINAL PERDIDO ⚠";
+    }else{
+        document.title = "// CONEXÃO RESTAURADA //";
+        setTimeout(()=>document.title = originalTitle, 2000);
+    }
+});
+
+/* =========================================
+   CONSOLE MESSAGE (easter egg F12)
+========================================= */
+console.log("%c// SISTEMA CLASSIFICADO 10.10", "color:#ff1111;font-family:monospace;font-size:16px;font-weight:bold");
+console.log("%cNÃO DEVERIA ESTAR AQUI.","color:#888;font-family:monospace");
+console.log("%cTente: ↑ ↑ ↓ ↓ ← → ← → B A","color:#ff1111;font-family:monospace");
+console.log("%cE no terminal: HELP → REVEAL","color:#888;font-family:monospace");
 </script>
 
 </body>
