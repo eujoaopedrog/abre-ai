@@ -54,9 +54,9 @@ body::after{
     position:fixed;width:26px;height:26px;
     border:1px solid rgba(var(--accent-rgb),.6);
     border-radius:50%;
-    pointer-events:none;z-index:200;
+    pointer-events:none;z-index:250;
     transform:translate(-50%,-50%);
-    transition:width .2s,height .2s,background .2s;
+    transition:width .2s,height .2s,background .2s,opacity .3s;
     mix-blend-mode:difference;
 }
 #cursor::before,#cursor::after{
@@ -65,6 +65,7 @@ body::after{
 #cursor::before{left:50%;top:-4px;width:1px;height:6px;transform:translateX(-50%)}
 #cursor::after{top:50%;left:-4px;height:1px;width:6px;transform:translateY(-50%)}
 #cursor.hover{width:40px;height:40px;background:rgba(var(--accent-rgb),.1)}
+#cursor.hidden{opacity:0}
 @media(hover:none){#cursor{display:none}html,body{cursor:auto}}
 
 /* MATRIX BG */
@@ -86,14 +87,178 @@ body::after{
 }
 @keyframes vignettePulse{from{opacity:.5}to{opacity:1}}
 
+/* =========================================
+   ACCESS GATE (tela inicial de autorização)
+========================================= */
+#access-gate{
+    position:fixed;inset:0;z-index:180;
+    background:#000;
+    display:flex;justify-content:center;align-items:center;
+    text-align:center;
+    transition:opacity 1s ease,visibility 1s ease;
+}
+#access-gate::before{
+    content:"";position:absolute;inset:0;
+    background:
+        linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);
+    background-size:42px 42px;
+    pointer-events:none;
+}
+#access-gate::after{
+    content:"";position:absolute;inset:0;
+    background:repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,.035) 0px,
+        rgba(255,255,255,.035) 1px,
+        transparent 1px,transparent 4px);
+    pointer-events:none;opacity:.3;
+}
+#access-gate.hide{opacity:0;visibility:hidden}
+
+.gate-content{
+    position:relative;z-index:2;
+    width:min(640px,90%);
+    padding:45px 35px;
+    border:1px solid #1d1d1d;
+    background:rgba(0,0,0,.75);
+    box-shadow:
+        inset 0 0 80px rgba(var(--accent-rgb),.04),
+        0 0 60px rgba(0,0,0,.9);
+    animation:gateEnter 1s ease-out;
+}
+@keyframes gateEnter{
+    from{opacity:0;transform:translateY(20px) scale(.98);filter:blur(6px)}
+    to{opacity:1;transform:none;filter:blur(0)}
+}
+
+.gate-content::before{
+    content:"";position:absolute;top:0;left:0;width:100%;height:1px;
+    background:linear-gradient(90deg,transparent,var(--accent),transparent);
+    animation:scan 3s linear infinite;
+}
+
+.gate-icon{
+    display:inline-block;
+    color:var(--accent);
+    margin-bottom:26px;
+    filter:drop-shadow(0 0 20px rgba(var(--accent-rgb),.6));
+    animation:lockPulse 2.2s ease-in-out infinite;
+}
+@keyframes lockPulse{
+    0%,100%{transform:scale(1);opacity:.92}
+    50%{transform:scale(1.08);opacity:1}
+}
+.gate-icon svg .shackle{
+    transition:transform .5s cubic-bezier(.5,1.8,.5,1),opacity .3s;
+    transform-origin:20px 28px;
+    transform-box:fill-box;
+}
+.gate-icon.unlocked svg .shackle{
+    transform:rotate(-28deg) translateY(-1px);
+}
+.gate-icon.unlocked{
+    animation:none;
+    color:#fff;
+    filter:drop-shadow(0 0 30px rgba(255,255,255,.9));
+    transition:color .4s,filter .4s;
+}
+
+.gate-label{
+    font-size:9px;letter-spacing:5px;color:var(--accent);
+    margin-bottom:22px;
+    animation:blinkSoft 2.5s infinite;
+}
+@keyframes blinkSoft{
+    0%,100%{opacity:1}50%{opacity:.55}
+}
+
+.gate-title{
+    font-family:Arial,Helvetica,sans-serif;
+    font-weight:1000;
+    font-size:clamp(30px,5.5vw,54px);
+    letter-spacing:-2px;
+    line-height:.92;
+    margin-bottom:26px;
+    text-transform:uppercase;
+}
+.gate-title .red{
+    color:var(--accent);
+    text-shadow:0 0 25px rgba(var(--accent-rgb),.5),0 0 60px rgba(var(--accent-rgb),.2);
+}
+
+.gate-sub{
+    font-size:11px;letter-spacing:1.5px;color:#8a8a8a;
+    line-height:2;margin-bottom:26px;
+    max-width:460px;margin-left:auto;margin-right:auto;
+}
+.gate-sub .warn{color:var(--accent);font-weight:700}
+
+.gate-warning{
+    display:inline-block;
+    font-size:9px;letter-spacing:3px;color:var(--accent);
+    border:1px solid rgba(var(--accent-rgb),.4);
+    padding:9px 15px;
+    margin-bottom:36px;
+    background:rgba(var(--accent-rgb),.05);
+    animation:warnFlicker 3s infinite;
+}
+@keyframes warnFlicker{
+    0%,88%,100%{opacity:1}
+    90%{opacity:.3}
+    92%{opacity:1}
+}
+
+#access-btn{
+    display:block;
+    width:100%;
+    background:transparent;
+    border:1px solid var(--accent);
+    color:var(--accent);
+    font-family:inherit;
+    font-size:13px;
+    letter-spacing:6px;
+    padding:19px 24px;
+    cursor:none;
+    transition:all .35s ease;
+    font-weight:700;
+    position:relative;
+}
+#access-btn:hover,#access-btn:focus{
+    background:var(--accent);
+    color:#000;
+    box-shadow:0 0 40px rgba(var(--accent-rgb),.55),inset 0 0 25px rgba(255,255,255,.1);
+    outline:none;
+    letter-spacing:8px;
+}
+#access-btn.loading{
+    pointer-events:none;
+    color:#666;
+    border-color:#333;
+    background:transparent;
+    box-shadow:none;
+    letter-spacing:6px;
+}
+
+.gate-meta{
+    margin-top:26px;
+    font-size:8px;letter-spacing:4px;color:#3d3d3d;
+    display:flex;justify-content:space-between;
+    gap:14px;
+}
+.gate-meta .accent{color:rgba(var(--accent-rgb),.6)}
+
 /* AUDIO TOGGLE */
 #audio-toggle{
     position:fixed;top:14px;right:14px;z-index:150;
     background:rgba(0,0,0,.6);border:1px solid #222;color:#777;
     font-family:inherit;font-size:10px;letter-spacing:2px;
     padding:7px 11px;cursor:none;
-    transition:all .25s ease;backdrop-filter:blur(4px);
+    transition:all .25s ease,opacity .5s,visibility .5s;
+    backdrop-filter:blur(4px);
+    opacity:0;visibility:hidden;
 }
+#audio-toggle.show{opacity:1;visibility:visible}
 #audio-toggle:hover{border-color:var(--accent);color:#fff}
 #audio-toggle.on{color:var(--accent);border-color:rgba(var(--accent-rgb),.5)}
 
@@ -447,6 +612,8 @@ body::after{
     .names{letter-spacing:4px}
     .dossier-grid{grid-template-columns:1fr;gap:14px}
     #timestamps,#signal-bar{display:none}
+    .gate-content{padding:34px 22px}
+    .gate-meta{font-size:7px;letter-spacing:2px}
 }
 </style>
 </head>
@@ -457,7 +624,7 @@ body::after{
 <div class="red-vignette"></div>
 <div class="glitch-flash" id="glitchFlash"></div>
 
-<button id="audio-toggle" class="on">🔊 ÁUDIO ON</button>
+<button id="audio-toggle">🔇 ÁUDIO OFF</button>
 
 <div id="timestamps"></div>
 <div id="signal-bar">
@@ -468,6 +635,47 @@ body::after{
     <div class="bar" style="height:16px"></div>
     <span class="label" id="signal-label">SINAL</span>
 </div>
+
+<!-- ============================================
+     ACCESS GATE — Autorização inicial (ativa áudio)
+============================================= -->
+<section id="access-gate">
+    <div class="gate-content">
+        <div class="gate-icon" id="gate-icon">
+            <svg viewBox="0 0 64 64" width="58" height="58"
+                 fill="none" stroke="currentColor" stroke-width="2.4"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <rect x="14" y="28" width="36" height="28" rx="2"/>
+                <path class="shackle" d="M20 28 V20 A12 12 0 0 1 44 20 V28"/>
+                <circle cx="32" cy="42" r="2.5" fill="currentColor" stroke="none"/>
+                <line x1="32" y1="44.5" x2="32" y2="49.5"/>
+            </svg>
+        </div>
+
+        <div class="gate-label">// ARQUIVO CLASSIFICADO DETECTADO</div>
+
+        <h1 class="gate-title">
+            VOCÊ TEM<br>
+            <span class="red">CERTEZA?</span>
+        </h1>
+
+        <p class="gate-sub">
+            Este arquivo contém <span class="warn">registros de áudio</span>
+            de uma operação não autorizada.<br>
+            Ao autorizar o acesso, você assume total responsabilidade
+            pelo que vai ouvir.
+        </p>
+
+        <div class="gate-warning">⚠ RECOMENDADO: USE FONES DE OUVIDO</div>
+
+        <button id="access-btn">🔓 AUTORIZAR ACESSO</button>
+
+        <div class="gate-meta">
+            <span>NÍVEL: <span class="accent">CLASSIFICADO</span></span>
+            <span>OPERAÇÃO: <span class="accent">10.10</span></span>
+        </div>
+    </div>
+</section>
 
 <!-- ============ LOADING ============ -->
 <section id="loading-screen">
@@ -666,12 +874,15 @@ const zeroScreen = $("zero-screen");
 const audioToggle = $("audio-toggle");
 const cursor = $("cursor");
 const konamiToast = $("konami-toast");
+const accessGate = $("access-gate");
+const accessBtn = $("access-btn");
+const gateIcon = $("gate-icon");
 
 /* =========================================
-   AUDIO (Web Audio API — autoplay inteligente)
+   AUDIO
 ========================================= */
 let audioCtx = null;
-let muted = false;              // já vem LIGADO por padrão
+let muted = true;   // começa OFF — o gate ativa
 let droneNodes = null;
 let audioReady = false;
 let droneStarted = false;
@@ -682,24 +893,6 @@ function initAudio(){
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         audioReady = true;
     }catch(e){ console.warn("Audio não suportado:", e); }
-}
-
-// Tenta retomar o contexto e inicia o drone
-function tryResumeAudio(){
-    initAudio();
-    if(!audioCtx) return;
-    const resumePromise = audioCtx.resume();
-    if(resumePromise && resumePromise.then){
-        resumePromise.then(()=>{
-            if(!muted && !droneStarted){
-                startDrone();
-                droneStarted = true;
-                playBeep(880, 0.08, 0.04);
-                audioToggle.textContent = "🔊 ÁUDIO ON";
-                audioToggle.classList.add("on");
-            }
-        }).catch(()=>{});
-    }
 }
 
 function playBeep(freq=800, dur=0.05, vol=0.04, type="square"){
@@ -748,6 +941,7 @@ function startDrone(){
     g.connect(audioCtx.destination);
     o1.start(); o2.start(); lfo.start();
     droneNodes = {o1,o2,g,lfo};
+    droneStarted = true;
 }
 function stopDrone(){
     if(!droneNodes) return;
@@ -768,38 +962,16 @@ function toggleAudio(){
     }else{
         audioToggle.textContent = "🔊 ÁUDIO ON";
         audioToggle.classList.add("on");
-        tryResumeAudio();
+        if(audioCtx && audioCtx.state === "suspended"){
+            audioCtx.resume().then(()=>startDrone()).catch(()=>{});
+        }else if(audioCtx){
+            startDrone();
+        }
     }
 }
 audioToggle.addEventListener("click", e => {
     e.stopPropagation();
     toggleAudio();
-});
-
-/* ---------- AUTOPLAY INTELIGENTE ----------
-   Registra VÁRIOS tipos de gesto como "primeira interação".
-   A primeira vez que qualquer um deles acontecer, o áudio liga. */
-const gestos = ["click","keydown","touchstart","mousemove","scroll","focus","pointerdown"];
-let audioActivated = false;
-
-function activateAudioOnce(){
-    if(audioActivated) return;
-    audioActivated = true;
-    tryResumeAudio();
-    // Remove os listeners para não pesar
-    gestos.forEach(g => window.removeEventListener(g, activateAudioOnce));
-}
-gestos.forEach(g => window.addEventListener(g, activateAudioOnce, {passive:true}));
-
-// Tenta ativar imediatamente ao carregar (pode funcionar em alguns casos)
-window.addEventListener("load", ()=>{
-    initAudio();
-    tryResumeAudio();
-});
-
-// Também tenta em qualquer mudança de visibilidade (usuário voltou pra aba)
-document.addEventListener("visibilitychange", ()=>{
-    if(!document.hidden) tryResumeAudio();
 });
 
 /* =========================================
@@ -818,26 +990,69 @@ if(window.matchMedia("(hover:hover)").matches){
         requestAnimationFrame(animCursor);
     }
     animCursor();
-    document.querySelectorAll("button, input, a, .time-box, .dossier").forEach(el=>{
-        el.addEventListener("mouseenter", ()=>cursor.classList.add("hover"));
-        el.addEventListener("mouseleave", ()=>cursor.classList.remove("hover"));
+    const hoverTargets = () =>
+        document.querySelectorAll("button, input, a, .time-box, .dossier, #access-btn");
+    document.addEventListener("mouseover", e => {
+        if(e.target.closest("button, input, a, .time-box, .dossier")){
+            cursor.classList.add("hover");
+        }else{
+            cursor.classList.remove("hover");
+        }
     });
 }
 
 /* =========================================
-   TERMINAL LOG (linhas digitando)
+   ACCESS GATE — PRIMEIRA INTERAÇÃO (ativa áudio)
 ========================================= */
-const terminalLines = [1,2,3,4,5,6,7,8].map(i => $("line"+i));
-let lineIndex = 0;
+let gateOpened = false;
 
-function showNextLine(){
-    if(lineIndex >= terminalLines.length) return;
-    terminalLines[lineIndex].classList.add("show");
-    playBeep(1100 + Math.random()*300, 0.02, 0.015, "square");
-    lineIndex++;
-    setTimeout(showNextLine, 230 + Math.random()*260);
+function openGate(){
+    if(gateOpened) return;
+    gateOpened = true;
+
+    // 1) Ativa o AudioContext dentro do gesto do usuário
+    initAudio();
+    muted = false;
+    audioToggle.textContent = "🔊 ÁUDIO ON";
+    audioToggle.classList.add("on");
+
+    // 2) Aplica animação visual do cadeado
+    gateIcon.classList.add("unlocked");
+    accessBtn.classList.add("loading");
+    accessBtn.textContent = "▸ AUTORIZADO. ABRINDO ARQUIVO...";
+
+    // 3) Resume o contexto e inicia o drone + sons de confirmação
+    if(audioCtx){
+        audioCtx.resume().then(()=>{
+            startDrone();
+            playBeep(660, 0.09, 0.06, "square");
+            setTimeout(()=>playBeep(880, 0.09, 0.06, "square"), 110);
+            setTimeout(()=>playBeep(1320, 0.18, 0.07, "square"), 230);
+            setTimeout(()=>glitch(true), 260);
+        }).catch(err => {
+            console.warn("Falha ao iniciar áudio:", err);
+        });
+    }
+
+    // 4) Some o gate e dá start na sequência de loading
+    setTimeout(()=>{
+        accessGate.classList.add("hide");
+        audioToggle.classList.add("show");
+        setTimeout(()=>{
+            startLoadingSequence();
+        }, 900);
+    }, 800);
 }
-setTimeout(showNextLine, 500);
+
+accessBtn.addEventListener("click", openGate);
+
+// Suporte a Enter/Espaço (acessibilidade)
+document.addEventListener("keydown", e=>{
+    if(!gateOpened && (e.key === "Enter" || e.key === " ")){
+        e.preventDefault();
+        openGate();
+    }
+}, {once:false});
 
 /* =========================================
    GLITCH
@@ -852,6 +1067,20 @@ function glitch(red=false){
 setInterval(()=>{
     if(Math.random() > 0.62) glitch();
 }, 1700);
+
+/* =========================================
+   TERMINAL LOG (linhas digitando)
+========================================= */
+const terminalLines = [1,2,3,4,5,6,7,8].map(i => $("line"+i));
+let lineIndex = 0;
+
+function showNextLine(){
+    if(lineIndex >= terminalLines.length) return;
+    terminalLines[lineIndex].classList.add("show");
+    playBeep(1100 + Math.random()*300, 0.02, 0.015, "square");
+    lineIndex++;
+    setTimeout(showNextLine, 230 + Math.random()*260);
+}
 
 /* =========================================
    INTRUSION ALERT (easter egg durante loading)
@@ -887,42 +1116,54 @@ function triggerIntrusion(){
 }
 
 /* =========================================
-   LOADING PROGRESS
+   LOADING SEQUENCE (iniciada após o gate)
 ========================================= */
 let loading = 0;
-const loadingInterval = setInterval(()=>{
-    if(loading < 65) loading += Math.random()*3.8;
-    else if(loading < 88) loading += Math.random()*2;
-    else loading += Math.random()*0.65;
+let loadingInterval = null;
+let loadingStarted = false;
 
-    if(loading > 35 && loading < 60 && !intrusionShown && Math.random() > 0.7){
-        triggerIntrusion();
-    }
+function startLoadingSequence(){
+    if(loadingStarted) return;
+    loadingStarted = true;
 
-    if(loading >= 100){
-        loading = 100;
-        clearInterval(loadingInterval);
-        progress.style.width = "100%";
-        percent.textContent = "100%";
-        accessText.textContent = "ACCESS GRANTED // NIGHT PROTOCOL ARMED";
-        accessText.style.color = "var(--accent)";
-        playBeep(1200, 0.1, 0.06);
-        setTimeout(()=>playBeep(1600, 0.1, 0.06), 100);
+    // Começa a digitar as linhas do terminal
+    setTimeout(showNextLine, 500);
 
-        setTimeout(()=>{
-            glitch();
+    // Começa o progresso do loading
+    loadingInterval = setInterval(()=>{
+        if(loading < 65) loading += Math.random()*3.8;
+        else if(loading < 88) loading += Math.random()*2;
+        else loading += Math.random()*0.65;
+
+        if(loading > 35 && loading < 60 && !intrusionShown && Math.random() > 0.7){
+            triggerIntrusion();
+        }
+
+        if(loading >= 100){
+            loading = 100;
+            clearInterval(loadingInterval);
+            progress.style.width = "100%";
+            percent.textContent = "100%";
+            accessText.textContent = "ACCESS GRANTED // NIGHT PROTOCOL ARMED";
+            accessText.style.color = "var(--accent)";
+            playBeep(1200, 0.1, 0.06);
+            setTimeout(()=>playBeep(1600, 0.1, 0.06), 100);
+
             setTimeout(()=>{
-                loadingScreen.classList.add("hide");
+                glitch();
                 setTimeout(()=>{
-                    showReconnecting();
-                }, 400);
-            }, 250);
-        }, 700);
-        return;
-    }
-    progress.style.width = loading + "%";
-    percent.textContent = Math.floor(loading) + "%";
-}, 100);
+                    loadingScreen.classList.add("hide");
+                    setTimeout(()=>{
+                        showReconnecting();
+                    }, 400);
+                }, 250);
+            }, 700);
+            return;
+        }
+        progress.style.width = loading + "%";
+        percent.textContent = Math.floor(loading) + "%";
+    }, 100);
+}
 
 /* =========================================
    RECONNECTING PHASE
@@ -1191,7 +1432,7 @@ document.addEventListener("visibilitychange", ()=>{
 });
 
 /* =========================================
-   CONSOLE MESSAGE (easter egg F12)
+   CONSOLE MESSAGE
 ========================================= */
 console.log("%c// SISTEMA CLASSIFICADO 10.10", "color:#ff1111;font-family:monospace;font-size:16px;font-weight:bold");
 console.log("%cNÃO DEVERIA ESTAR AQUI.","color:#888;font-family:monospace");
