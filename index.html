@@ -96,11 +96,6 @@ body::after{
 }
 #audio-toggle:hover{border-color:var(--accent);color:#fff}
 #audio-toggle.on{color:var(--accent);border-color:rgba(var(--accent-rgb),.5)}
-#audio-toggle.pulse{animation:audioPulse 2s infinite}
-@keyframes audioPulse{
-    0%,100%{box-shadow:0 0 0 0 rgba(var(--accent-rgb),0)}
-    50%{box-shadow:0 0 0 6px rgba(var(--accent-rgb),0)}
-}
 
 /* TIMESTAMPS */
 #timestamps{
@@ -354,34 +349,6 @@ body::after{
 .final-date{margin-top:18px;font-size:11px;letter-spacing:6px;color:var(--accent)}
 .names{margin-top:50px;font-size:10px;letter-spacing:7px;color:#555}
 
-/* TERMINAL INPUT */
-#terminal-console{
-    position:fixed;bottom:0;left:0;right:0;z-index:16;
-    background:linear-gradient(to top,rgba(0,0,0,.95),rgba(0,0,0,.7) 70%,transparent);
-    padding:40px max(20px,5vw) 18px;
-    font-size:11px;letter-spacing:1px;
-    opacity:0;visibility:hidden;transition:opacity .6s,visibility .6s;
-}
-#terminal-console.active{opacity:1;visibility:visible}
-#terminal-output{
-    max-height:130px;overflow-y:auto;
-    color:#555;line-height:1.9;margin-bottom:8px;
-    scrollbar-width:thin;scrollbar-color:#1d1d1d transparent;
-}
-#terminal-output::-webkit-scrollbar{width:4px}
-#terminal-output::-webkit-scrollbar-thumb{background:#1d1d1d}
-#terminal-output .line{animation:typeIn .15s ease-out}
-#terminal-output .ok{color:#aaa}
-#terminal-output .warn{color:var(--accent)}
-@keyframes typeIn{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
-.terminal-prompt{display:flex;align-items:center;gap:8px}
-.terminal-prompt .ps1{color:var(--accent);font-weight:700}
-#terminal-input{
-    flex:1;background:transparent;border:none;outline:none;
-    font-family:inherit;font-size:11px;letter-spacing:1px;
-    color:#ddd;caret-color:var(--accent);
-}
-
 /* ZERO SCREEN */
 #zero-screen{
     position:fixed;inset:0;z-index:130;background:#000;
@@ -490,7 +457,7 @@ body::after{
 <div class="red-vignette"></div>
 <div class="glitch-flash" id="glitchFlash"></div>
 
-<button id="audio-toggle" class="pulse">🔇 ÁUDIO OFF</button>
+<button id="audio-toggle" class="on">🔊 ÁUDIO ON</button>
 
 <div id="timestamps"></div>
 <div id="signal-bar">
@@ -663,17 +630,6 @@ body::after{
 </div>
 </section>
 
-<!-- ============ TERMINAL INPUT ============ -->
-<div id="terminal-console">
-    <div id="terminal-output">
-        <div class="line ok">&gt; CONEXÃO ESTABELECIDA. DIGITE <span style="color:var(--accent)">HELP</span> PARA VER OS COMANDOS.</div>
-    </div>
-    <div class="terminal-prompt">
-        <span class="ps1">&gt;</span>
-        <input type="text" id="terminal-input" autocomplete="off" spellcheck="false" placeholder="aguardando comando...">
-    </div>
-</div>
-
 <!-- ============ ZERO SCREEN ============ -->
 <section id="zero-screen">
     <div class="zero-msg">
@@ -707,38 +663,47 @@ const accessText = $("accessText");
 const glitchFlash = $("glitchFlash");
 const reconnecting = $("reconnecting");
 const zeroScreen = $("zero-screen");
-const terminalConsole = $("terminal-console");
-const terminalInput = $("terminal-input");
-const terminalOutput = $("terminal-output");
 const audioToggle = $("audio-toggle");
 const cursor = $("cursor");
 const konamiToast = $("konami-toast");
 
 /* =========================================
-   AUDIO (Web Audio API — sem arquivos)
+   AUDIO (Web Audio API — autoplay inteligente)
 ========================================= */
 let audioCtx = null;
-let muted = true;
+let muted = false;              // já vem LIGADO por padrão
 let droneNodes = null;
 let audioReady = false;
+let droneStarted = false;
 
 function initAudio(){
     if(audioReady) return;
     try{
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         audioReady = true;
-    }catch(e){ console.warn("Audio não suportado"); }
+    }catch(e){ console.warn("Audio não suportado:", e); }
 }
 
-function resumeAudio(){
+// Tenta retomar o contexto e inicia o drone
+function tryResumeAudio(){
     initAudio();
-    if(audioCtx && audioCtx.state === "suspended"){
-        audioCtx.resume();
+    if(!audioCtx) return;
+    const resumePromise = audioCtx.resume();
+    if(resumePromise && resumePromise.then){
+        resumePromise.then(()=>{
+            if(!muted && !droneStarted){
+                startDrone();
+                droneStarted = true;
+                playBeep(880, 0.08, 0.04);
+                audioToggle.textContent = "🔊 ÁUDIO ON";
+                audioToggle.classList.add("on");
+            }
+        }).catch(()=>{});
     }
 }
 
 function playBeep(freq=800, dur=0.05, vol=0.04, type="square"){
-    if(muted || !audioCtx) return;
+    if(muted || !audioCtx || audioCtx.state !== "running") return;
     const t = audioCtx.currentTime;
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
@@ -751,7 +716,7 @@ function playBeep(freq=800, dur=0.05, vol=0.04, type="square"){
 }
 
 function playNoise(dur=0.08, vol=0.05){
-    if(muted || !audioCtx) return;
+    if(muted || !audioCtx || audioCtx.state !== "running") return;
     const size = Math.floor(audioCtx.sampleRate * dur);
     const buf = audioCtx.createBuffer(1, size, audioCtx.sampleRate);
     const data = buf.getChannelData(0);
@@ -790,13 +755,12 @@ function stopDrone(){
         droneNodes.o1.stop(); droneNodes.o2.stop(); droneNodes.lfo.stop();
     }catch(e){}
     droneNodes = null;
+    droneStarted = false;
 }
 
 function toggleAudio(){
     initAudio();
-    resumeAudio();
     muted = !muted;
-    audioToggle.classList.remove("pulse");
     if(muted){
         audioToggle.textContent = "🔇 ÁUDIO OFF";
         audioToggle.classList.remove("on");
@@ -804,24 +768,39 @@ function toggleAudio(){
     }else{
         audioToggle.textContent = "🔊 ÁUDIO ON";
         audioToggle.classList.add("on");
-        startDrone();
-        playBeep(880, 0.08, 0.05);
+        tryResumeAudio();
     }
 }
-audioToggle.addEventListener("click", toggleAudio);
+audioToggle.addEventListener("click", e => {
+    e.stopPropagation();
+    toggleAudio();
+});
 
-// Primeira interação ativa o áudio automaticamente
-function firstInteraction(){
-    initAudio();
-    resumeAudio();
-    if(muted){
-        // Ativa por padrão na primeira interação
-        toggleAudio();
-    }
+/* ---------- AUTOPLAY INTELIGENTE ----------
+   Registra VÁRIOS tipos de gesto como "primeira interação".
+   A primeira vez que qualquer um deles acontecer, o áudio liga. */
+const gestos = ["click","keydown","touchstart","mousemove","scroll","focus","pointerdown"];
+let audioActivated = false;
+
+function activateAudioOnce(){
+    if(audioActivated) return;
+    audioActivated = true;
+    tryResumeAudio();
+    // Remove os listeners para não pesar
+    gestos.forEach(g => window.removeEventListener(g, activateAudioOnce));
 }
-document.addEventListener("click", firstInteraction, {once:true});
-document.addEventListener("keydown", firstInteraction, {once:true});
-document.addEventListener("touchstart", firstInteraction, {once:true});
+gestos.forEach(g => window.addEventListener(g, activateAudioOnce, {passive:true}));
+
+// Tenta ativar imediatamente ao carregar (pode funcionar em alguns casos)
+window.addEventListener("load", ()=>{
+    initAudio();
+    tryResumeAudio();
+});
+
+// Também tenta em qualquer mudança de visibilidade (usuário voltou pra aba)
+document.addEventListener("visibilitychange", ()=>{
+    if(!document.hidden) tryResumeAudio();
+});
 
 /* =========================================
    CUSTOM CURSOR
@@ -916,7 +895,6 @@ const loadingInterval = setInterval(()=>{
     else if(loading < 88) loading += Math.random()*2;
     else loading += Math.random()*0.65;
 
-    // Intrusion em ~35-55%
     if(loading > 35 && loading < 60 && !intrusionShown && Math.random() > 0.7){
         triggerIntrusion();
     }
@@ -972,7 +950,6 @@ function showReconnecting(){
    INTRO SEQUENCE
 ========================================= */
 function startIntroSequence(){
-    // Parallax no título
     const introParallax = $("intro-parallax");
     if(window.matchMedia("(hover:hover)").matches){
         let mx=0,my=0,tMx=0,tMy=0;
@@ -1006,7 +983,6 @@ function startDossiers(){
     const dots = document.querySelectorAll(".dossier-progress .dot");
     const skip = $("dossier-skip");
     skip.classList.add("show");
-    let idx = 0;
     let skipped = false;
 
     function show(i){
@@ -1044,11 +1020,6 @@ function endDossiers(){
         initMatrix();
         startTimestamps();
         startSignal();
-        // Ativa terminal interativo
-        setTimeout(()=>{
-            terminalConsole.classList.add("active");
-            terminalInput.focus();
-        }, 800);
     }, 700);
 }
 
@@ -1079,7 +1050,6 @@ function updateCountdown(){
     $("minutes").textContent = String(minutes).padStart(2,"0");
     $("seconds").textContent = String(seconds).padStart(2,"0");
 
-    // Marcar como crítico se faltam menos de 10s
     const critical = days===0 && hours===0 && minutes===0 && seconds<=10;
     document.querySelectorAll(".time-number").forEach(el=>{
         el.classList.toggle("critical", critical);
@@ -1096,7 +1066,6 @@ setInterval(updateCountdown, 1000);
 ========================================= */
 function triggerZeroScreen(){
     countdownScreen.classList.remove("active");
-    terminalConsole.classList.remove("active");
     glitch(true);
     playNoise(0.4, 0.08);
     setTimeout(()=>{
@@ -1136,7 +1105,7 @@ function startSignal(){
     el.classList.add("active");
     const bars = el.querySelectorAll(".bar");
     function update(){
-        const strength = 3 + Math.floor(Math.random()*3); // 3-5
+        const strength = 3 + Math.floor(Math.random()*3);
         bars.forEach((b,i)=>{
             b.classList.toggle("on", i < strength);
         });
@@ -1178,111 +1147,6 @@ function initMatrix(){
     }
     setInterval(draw, 55);
 }
-
-/* =========================================
-   TERMINAL INTERATIVO
-========================================= */
-const commands = {
-    help(){
-        addLine("COMANDOS DISPONÍVEIS:", "ok");
-        addLine("  HELP      — lista comandos");
-        addLine("  WHOAMI    — identifica usuário");
-        addLine("  SUBJECTS  — lista sujeitos");
-        addLine("  DATE      — data do evento");
-        addLine("  STATUS    — status do protocolo");
-        addLine("  10.10     — mensagem especial", "warn");
-        addLine("  REVEAL    — revelar o oculto", "warn");
-        addLine("  MYLLER / COSTA / JANTARA");
-        addLine("  CLEAR     — limpar terminal");
-    },
-    whoami(){
-        addLine("USUÁRIO: ANÔNIMO_0x10", "ok");
-        addLine("NÍVEL DE ACESSO: LIMITADO");
-        addLine("SESSION: " + Math.random().toString(36).slice(2,10).toUpperCase());
-    },
-    subjects(){
-        addLine("3 SUJEITOS DETECTADOS:", "warn");
-        addLine("  [01] MYLLER  — STATUS: ATIVO");
-        addLine("  [02] COSTA   — STATUS: ATIVO");
-        addLine("  [03] JANTARA — STATUS: ATIVO");
-    },
-    date(){
-        addLine("EVENTO LOCKADO: 10.10.2026");
-        const diff = targetDate.getTime() - Date.now();
-        if(diff > 0){
-            const d = Math.floor(diff/86400000);
-            addLine(`FALTAM ${d} DIAS.`, "warn");
-        }else{
-            addLine("É HOJE.", "warn");
-        }
-    },
-    status(){
-        addLine("NIGHT PROTOCOL: ARMED", "warn");
-        addLine("SUJEITOS: 3/3 CONFIRMADOS", "ok");
-        addLine("LOCAL: ████████ [REDACTED]");
-    },
-    "10.10"(){
-        addLine("> A NOITE QUE NÃO DEVERIA EXISTIR.", "warn");
-        addLine("> NÃO HÁ COMO VOLTAR ATRÁS.");
-        addLine("> ELES SABEM.");
-    },
-    reveal(){
-        addLine(">> ACESSANDO ARQUIVO OCULTO...", "warn");
-        setTimeout(()=>addLine(">> ██████ █████ ██ ███ ████████"), 400);
-        setTimeout(()=>addLine(">> CHAVE: K0N4M1 / D3C0D3", "warn"), 900);
-        setTimeout(()=>addLine(">> DIGITE OS NOMES PARA MAIS INFO."), 1400);
-        glitch(true);
-    },
-    myller(){
-        addLine("MYLLER — O PRIMEIRO.", "warn");
-        addLine("NÃO PERGUNTOU ONDE. NÃO PERGUNTOU POR QUÊ.");
-    },
-    costa(){
-        addLine("COSTA — O SEGUNDO.", "warn");
-        addLine("JÁ SABIA O QUE VIRIA. MESMO ASSIM, DISSE SIM.");
-    },
-    jantara(){
-        addLine("JANTARA — O ÚLTIMO.", "warn");
-        addLine("NÃO HAVIA VOLTA. A NOITE JÁ ESTAVA ARMADA.");
-    },
-    clear(){
-        terminalOutput.innerHTML = "";
-    }
-};
-
-function addLine(text, cls=""){
-    const d = document.createElement("div");
-    d.className = "line " + cls;
-    d.innerHTML = "&gt; " + text;
-    terminalOutput.appendChild(d);
-    terminalOutput.scrollTop = terminalOutput.scrollHeight;
-    playBeep(700, 0.015, 0.012);
-}
-
-terminalInput.addEventListener("keydown", e=>{
-    if(e.key === "Enter"){
-        const cmd = terminalInput.value.trim().toLowerCase();
-        if(!cmd) return;
-        addLine("> " + terminalInput.value);
-        terminalInput.value = "";
-        if(commands[cmd]){
-            commands[cmd]();
-        }else{
-            addLine("COMANDO NÃO RECONHECIDO: " + cmd, "warn");
-            addLine("DIGITE 'HELP' PARA VER OS COMANDOS.");
-        }
-        playBeep(1000, 0.03, 0.03);
-    }
-});
-
-// Focus automático no input quando o usuário clica fora
-document.addEventListener("click", e=>{
-    if(terminalConsole.classList.contains("active") &&
-       !e.target.closest("#terminal-console") &&
-       !e.target.closest("button")){
-        terminalInput.focus();
-    }
-});
 
 /* =========================================
    KONAMI CODE
@@ -1331,8 +1195,7 @@ document.addEventListener("visibilitychange", ()=>{
 ========================================= */
 console.log("%c// SISTEMA CLASSIFICADO 10.10", "color:#ff1111;font-family:monospace;font-size:16px;font-weight:bold");
 console.log("%cNÃO DEVERIA ESTAR AQUI.","color:#888;font-family:monospace");
-console.log("%cTente: ↑ ↑ ↓ ↓ ← → ← → B A","color:#ff1111;font-family:monospace");
-console.log("%cE no terminal: HELP → REVEAL","color:#888;font-family:monospace");
+console.log("%cTente o código Konami: ↑ ↑ ↓ ↓ ← → ← → B A","color:#ff1111;font-family:monospace");
 </script>
 
 </body>
